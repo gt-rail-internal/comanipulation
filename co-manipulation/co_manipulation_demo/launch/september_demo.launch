@@ -1,0 +1,21 @@
+<!--
+  Author: Abhinav Jain, Georgia Institute of Technology
+  Version: September 28, 2019
+-->
+
+<launch>
+
+  <!-- <arg name="comport" default="/dev/ttyUSB0"/> -->
+
+  <!-- Robot and Gripper Drivers -->
+  <include file="$(find conimbus_bringup)/launch/conimbus_bringup.launch"/>
+  <include file="$(find ar_track_launcher)/launch/camera_ar_track.launch"/>
+  <include file="$(find dmp)/launch/dmp.launch"/>
+
+  <node pkg="co_traj_optimizer" name="co_traj_optimizer" type="action_server.py" output="screen" />
+
+  <!-- <node pkg="co_task_optimizer" name="co_task_optimizer" type="chair_attachment_planner_client.py" output="screen" /> -->
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find co_manipulation_demo)/rviz/rvizconfig.rviz" />
+
+</launch>

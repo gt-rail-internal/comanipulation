@@ -1,0 +1,15 @@
+geometry_msgs/Point[] right_shoulder
+geometry_msgs/Point[] right_elbow
+geometry_msgs/Point[] right_wrist
+geometry_msgs/Point[] right_palm
+geometry_msgs/Point[] neck
+geometry_msgs/Point[] head
+geometry_msgs/Point[] torso
+geometry_msgs/Point[] left_shoulder
+geometry_msgs/Point[] left_elbow
+geometry_msgs/Point[] left_wrist
+geometry_msgs/Point[] left_palm
+float64 timestep_size
+int64 num_timesteps
+---
+bool success

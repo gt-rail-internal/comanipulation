@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: conimbus_description
+    relative_path: robots/conimbus.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/conimbus.srdf
+  CONFIG:
+    author_name: Abhinav Jain
+    author_email: jain@gatech.edu
+    generated_timestamp: 1569704758

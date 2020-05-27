@@ -1,0 +1,35 @@
+<!--
+  Author: Abhinav Jain, Georgia Institute of Technology
+  Version: September 26, 2019
+-->
+
+<launch>
+  <!-- Gripper Params -->
+  <arg name="comport" default="/dev/ttyUSB0"/>
+  <arg name="baud" default="115200"/>
+  <arg name="use_gripper" default="false"/>
+
+  <!-- Jaco 2 -->
+  <include file="$(find kinova_bringup)/launch/kinova_robot.launch">
+    <arg name="kinova_robotType" value="j2s7s300" />
+    <arg name="use_urdf" value="false" />
+  </include>
+  <!-- Launch trajectory controller -->
+  <node pkg="kinova_driver" type="hlpr_trajectory_controller" name="jaco_trajectory_controller" output="screen">
+    <param name="sim" value="false" />
+  </node>
+
+  <!-- Robotiq 85 ROS Driver -->
+  <group if="$(arg use_gripper)">
+    <node pkg="robotiq_85_driver" type="robotiq_85_driver" name="robotiq_85_driver" respawn="true" output="screen">
+      <param name="num_grippers" value="1" />
+      <param name="comport" value="$(arg comport)" />
+      <param name="baud" value="$(arg baud)" />
+    </node>
+    <node pkg="robotiq_85_gripper_actions" type="gripper_actions" name="gripper_actions" />
+  </group>
+
+  <!-- Robot model -->
+  <include file="$(find conimbus_description)/launch/conimbus_description.launch" />
+
+</launch>

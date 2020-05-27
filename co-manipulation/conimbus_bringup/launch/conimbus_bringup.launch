@@ -1,0 +1,49 @@
+<!--
+  Author: Abhinav Jain, Georgia Institute of Technology
+  Version: September 26, 2019
+-->
+
+<launch>
+  <!-- Gripper Params -->
+  <arg name="comport" default="/dev/ttyUSB0"/>
+  <arg name="baud" default="115200"/>
+
+  <!-- Motion Planning Params -->
+  <arg name="motion_planning" default="false" />
+  <arg name="debug" default="false" />
+
+  <!-- Sensor Params -->
+  <arg name="use_sensors" default="false" />
+  <arg name="top" default="true"/>
+  <arg name="side" default="false"/>
+
+  <arg name="use_gripper" default="false"/>
+
+  <!-- Robot and Gripper Drivers -->
+  <include file="$(find conimbus_bringup)/launch/conimbus_minimal.launch">
+    <arg name="comport" value="$(arg comport)" />
+    <arg name="baud" value="$(arg baud)" />
+    <arg name="use_gripper" value="$(arg use_gripper)" />
+  </include>
+
+  <!-- Load camera(s) -->
+  <group if="$(arg use_sensors)">
+    <include file="$(find conimbus_bringup)/launch/sensors.launch">
+      <arg name="top" value="$(arg top)"/>
+      <arg name="side" value="$(arg side)"/>
+    </include>
+  </group>
+
+  <!-- MoveIt -->
+  <group if="$(arg motion_planning)">
+    <!-- Run the main MoveIt executable with trajectory execution -->
+    <include file="$(find conimbus_moveit_config)/launch/move_group.launch">
+        <arg name="allow_trajectory_execution" value="true"/>
+        <arg name="fake_execution" value="false"/>
+        <arg name="info" value="true"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+    <!-- <node pkg="conimbus_moveit_config" type="conimbus_moveit" name="conimbus_moveit" />
+    <node pkg="conimbus_moveit_config" type="common_actions" name="common_actions" output="screen"/> -->
+  </group>
+</launch>

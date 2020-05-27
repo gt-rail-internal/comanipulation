@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="conimbus"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:gazebo="http://playerstage.sourceforge.net/gazebo/xmlschema/#gz"
+    xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
+    xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+    xmlns:body="http://playerstage.sourceforge.net/gazebo/xmlschema/#body"
+    xmlns:geom="http://playerstage.sourceforge.net/gazebo/xmlschema/#geom"
+    xmlns:joint="http://playerstage.sourceforge.net/gazebo/xmlschema/#joint"
+    xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+    xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+    xmlns:rendering="http://playerstage.sourceforge.net/gazebo/xmlschema/#rendering"
+    xmlns:renderable="http://playerstage.sourceforge.net/gazebo/xmlschema/#renderable"
+    xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics">
+  <xacro:include filename="$(find conimbus_description)/urdf/structure/arm_mount.urdf.xacro" />
+  <!-- <xacro:include filename="$(find conimbus_description)/urdf/structure/sensor_structure.urdf.xacro" /> -->
+  <xacro:include filename="$(find conimbus_description)/urdf/sensors/asus_xtion_pro.urdf.xacro" />
+  <!-- <xacro:include filename="$(find conimbus_description)/urdf/structure/placeholder.urdf.xacro" /> -->
+  <xacro:include filename="$(find kinova_description)/urdf/j2s7s300.xacro"/>
+
+
+  <link name="base_link"/>
+
+  <link name="table_base_link">
+    
+    <visual>
+      <geometry>
+        <cylinder length="0.022" radius=".9144"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.011" />
+      <material name="tan">
+        <color rgba="0.871 0.722 0.529 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.022" radius=".9144"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.011" />
+    </collision>
+   
+  </link>
+
+
+  <joint name="connect_table_and_base_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="table_base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <!-- <joint name="world_to_table_base" type="fixed">
+    <parent link="world"/>
+    <child link="table_base_link"/>
+    <origin xyz="0 0 0"/>
+  </joint> -->
+
+  <xacro:arm_mount parent="table_base_link">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:arm_mount>
+
+  <xacro:j2s7s300 base_parent="arm_mount_offset_link"/>
+
+  <link name="camera_link_mount_link">
+    <collision>
+      <geometry>
+        <box size="1.25 0.3 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="connect_camera_link_mount_and_j2s7s300_link_base" type="fixed">
+    <parent link="j2s7s300_link_base"/>
+    <child link="camera_link_mount_link"/>
+    <origin xyz="0.34824 -0.34942 1.5" rpy="0.0 1.57079632679 1.57079632679" />
+  </joint>
+
+
+  <link name="camera_link"/>
+  <joint name="connect_camera_link_and_j2s7s300_link_base" type="fixed">
+    <parent link="j2s7s300_link_base"/>
+    <child link="camera_link"/>
+    <origin xyz="0.34824 -0.34942 1.0428" rpy="0.1151 1.4076 1.7612" />
+  </joint>
+
+</robot>

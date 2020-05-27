@@ -1,0 +1,134 @@
+{
+    "basic_info" : {
+      "n_steps" : 10,
+      "manip" : "test_arm",
+      "start_fixed" : true
+    },
+    "costs" : [
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 0,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 1,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 2,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 3,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 4,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 5,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 6,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 7,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 8,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    },
+    {
+      "type" : "pose",
+      "params": {
+          "timestep" : 9,
+          "xyz" : [], 
+          "wxyz" : [1,0,0,0],
+          "pos_coeffs" : [1, 1, 1],
+          "rot_coeffs" : [0, 0, 0],
+          "link" : "j2s7s300_ee_link"
+        }
+    }
+    ],
+    "constraints" : [
+    {
+      "type" : "pose", 
+      "params" : {"xyz" : [0.1, 0.2, 0.2], 
+                  "wxyz" : [1,0,0,0], 
+                  "link": "j2s7s300_ee_link",
+                  "timestep" : 9
+                  }
+                   
+    }
+    ],
+    "init_info" : {
+        "type" : "straight_line",
+        "endpoint" : []
+    }
+}

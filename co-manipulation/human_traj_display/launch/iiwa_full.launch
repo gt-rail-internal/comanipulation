@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+    <include file="$(find iiwa_gazebo)/launch/iiwa_gazebo.launch" />
+    
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find iiwa_gazebo)/rviz/traj_viz.rviz" />
+
+    <node pkg="human_traj_display" name="human_traj_display" type="execute_human_traj_server.py" output="screen" />
+
+</launch>
