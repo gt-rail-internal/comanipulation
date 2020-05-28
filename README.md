@@ -101,6 +101,14 @@ make -j `nproc`
 
 Note that trajopt unittests may fail due to unstable OpenRAVE/OpenRAVEpy. OpenRAVE often crashes on exit.
 
+Verify installation: 
+
+- Build the catkin workspace using `catkin build`
+- Start ROS using `roscore`
+- Run trajopt using `python2 testing.py`
+- Run human motion predictor using `rosrun human_traj_pred - predict_human_traj.py`
+- Run phantom trajectory stream using `rosrun human_traj_pred phantom_human_traj_stream.py`
+
 # Running
 
 - First build the catkin workspace using `catkin build`.
