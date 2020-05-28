@@ -12,7 +12,7 @@ class Traj:
         self.obsv = []
         self.matlab = eng
         self.pub = pub
-        self.pred = ""
+        self.pred = None
     
     def add(self, obv):
         self.obsv.append(obv)
@@ -40,8 +40,6 @@ def callback(data, curr_obsv):
     if len(curr_obsv.obsv) > 50:
         curr_obsv.generate_prediction()
         curr_obsv.discard()
-    else:
-        curr_obsv.pred = "Waiting for enough data"
             
 def listener(eng):
     rospy.init_node('predictor', anonymous=False)
@@ -51,8 +49,9 @@ def listener(eng):
 
     rate = rospy.Rate(30)
     while not rospy.is_shutdown():
-        curr_obsv.publish()
-        rate.sleep()
+        if curr_obsv.pred is not None:
+            curr_obsv.publish()
+            rate.sleep()
 
 if __name__ == '__main__':
     print("Starting Matlab engine")
