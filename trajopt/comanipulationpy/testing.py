@@ -4,30 +4,34 @@ import numpy as np
 
 def run_test(test_framework):
 
-    # test_case_1_trajs = [120, 124, 131, 144, 165, 204, 221, 240, 269, 274, 276, 281, 303]
+    test_case_1_trajs = [120, 124, 131, 144, 165, 204, 221, 240, 269, 274, 276, 281, 303]
     
     test_case_1_start_joints = [-0.7240388673767146, -0.34790398102066433, 2.8303899987665897, -2.54032606205873, 1.3329587647643253, 2.7596249683074614, 0.850582268802067]
     
     test_case_1_end_joints = [-0.21084585626752084, 1.696737816218337, -2.565970219832999, 0.17682048063096367, 2.5144914879697158, 1.2588615840260928, -0.1733579520497237]
     
-    result = test_framework.setup_test(test_case_1_start_joints, test_case_1_end_joints)
-    # num_test_case_1_tests = len(test_case_1_trajs)
+    if test_framework.use_ros:
+        result = test_framework.setup_test(test_case_1_start_joints, test_case_1_end_joints)
+        print(result)
 
-    # our_metrics = np.ndarray((num_test_case_1_tests, 4))
-    # all_baseline_metrics = np.ndarray((num_test_case_1_tests, 4, 4))
+    else:
+        num_test_case_1_tests = len(test_case_1_trajs)
 
-    # for i in range(num_test_case_1_tests):
-    #     metrics = test_framework.setup_test(test_case_1_start_joints[i], test_case_1_end_joints[i], test_case_1_trajs[i], False)
-    #     for j in range(4):
-    #         our_metrics[i, j] = metrics[j]
+        our_metrics = np.ndarray((num_test_case_1_tests, 4))
+        all_baseline_metrics = np.ndarray((num_test_case_1_tests, 4, 4))
 
-    #     baseline_metrics = test_framework.test_baselines(test_case_1_start_joints[i], test_case_1_end_joints[i], test_case_1_trajs[i], False)
-    #     for j in range(4):
-    #         for k in range(4):
-    #             all_baseline_metrics[i, j, k] = baseline_metrics[j][k]
-    #     # raw_input("Next traj")
+        for i in range(num_test_case_1_tests):
+            metrics = test_framework.setup_test_without_ros(test_case_1_start_joints, test_case_1_end_joints, test_case_1_trajs[i], False)
+            for j in range(4):
+                our_metrics[i, j] = metrics[j]
 
-    # print_metrics(our_metrics, all_baseline_metrics, 1)
+            baseline_metrics = test_framework.test_baselines(test_case_1_start_joints, test_case_1_end_joints, test_case_1_trajs[i], False)
+            for j in range(4):
+                for k in range(4):
+                    all_baseline_metrics[i, j, k] = baseline_metrics[j][k]
+            # raw_input("Next traj")
+
+        print_metrics(our_metrics, all_baseline_metrics, 1)
 
 
 
