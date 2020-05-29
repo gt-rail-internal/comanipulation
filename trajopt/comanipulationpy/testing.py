@@ -4,7 +4,7 @@ import numpy as np
 
 def run_test(test_framework):
 
-    test_case_1_trajs = [120, 124, 131, 144, 165, 204, 221, 240, 269, 274, 276, 281, 303]
+    test_case_1_trajs = [120]
     
     test_case_1_start_joints = [-0.7240388673767146, -0.34790398102066433, 2.8303899987665897, -2.54032606205873, 1.3329587647643253, 2.7596249683074614, 0.850582268802067]
     
@@ -25,7 +25,7 @@ def run_test(test_framework):
             for j in range(4):
                 our_metrics[i, j] = metrics[j]
 
-            baseline_metrics = test_framework.test_baselines(test_case_1_start_joints, test_case_1_end_joints, test_case_1_trajs[i], False)
+            baseline_metrics = test_framework.test_baselines(test_case_1_start_joints, test_case_1_end_joints, test_case_1_trajs[i])
             for j in range(4):
                 for k in range(4):
                     all_baseline_metrics[i, j, k] = baseline_metrics[j][k]
@@ -135,7 +135,7 @@ def print_metrics(our_metrics, baseline_metrics, test_case):
 
 if __name__ == '__main__':
 
-    test_framework = TestingFramework(True, False, True, False)
+    test_framework = TestingFramework(False, False, False, False)
 
 
     # joint_start = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

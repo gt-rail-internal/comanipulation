@@ -27,7 +27,7 @@ bool gRegisteredMakers = false;
 
 
 
-void ensure_only_members(const Value& v, const char** fields, int nvalid) {
+void ensure_only_members(const Value& v, const char** fields, int nvalid) {  
   for (Json::ValueConstIterator it = v.begin(); it != v.end(); ++it) {
     bool valid = false;
     for (int j=0; j < nvalid; ++j) {

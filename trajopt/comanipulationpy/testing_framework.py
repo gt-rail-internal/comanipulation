@@ -956,8 +956,10 @@ class TestingFramework:
         add_regularize_cost(request, coeffs_reg, self.eef_link_name)
         add_optimal_trajectory_cost(request, default_eef_traj, self.eef_link_name, num_timesteps, coeff_optimal_traj)
         add_collision_cost(request, [20], [0.025])
-        add_smoothing_cost(request, 200, 2)
-
+        
+        # Need to add again after fixing errors
+        # add_smoothing_cost(request, 200, 2)
+        
         result = self.optimize_problem(request)
 
         self.execute_trajectory(result.GetTraj())
