@@ -1,2 +1,4 @@
 trajopt/build/*
 trajopt/build_trajopt/*
+*.pyc
+*__pycache__*
