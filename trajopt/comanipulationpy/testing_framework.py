@@ -63,9 +63,9 @@ class TestingFramework:
             self.eef_link_name = "iiwa_link_ee"
             self.all_links = ["iiwa_link_1", "iiwa_link_2", "iiwa_link_3", "iiwa_link_4", "iiwa_link_5", "iiwa_link_6", "iiwa_link_7"]
 
-        # self.env.SetDefaultViewer()
+        self.env.SetDefaultViewer()
 
-        # trajoptpy.SetInteractive(args.interactive) # pause every iteration, until you press 'p'. Press escape to disable further plotting
+        trajoptpy.SetInteractive(args.interactive) # pause every iteration, until you press 'p'. Press escape to disable further plotting
         self.robot = self.env.GetRobots()[0]
         self.manipulator = self.robot.GetManipulator(self.manipulator_name)
         self.eef_link = self.robot.GetLink(self.eef_link_name)
