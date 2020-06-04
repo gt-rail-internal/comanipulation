@@ -1,22 +1,10 @@
 #! /usr/bin/env python
 
-# import actionlib
-# from actionlib_msgs.msg import *
-# from geometry_msgs.msg import *
+
 import math
-# from std_msgs.msg import Float64
-# import rospy
-# import tf
-# from tf import TransformListener
 import numpy as np
 import csv
 import glob
-
-
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--interactive", action="store_true")
-args = parser.parse_args()
 
 import openravepy
 import trajoptpy
@@ -25,7 +13,6 @@ import time
 import trajoptpy.kin_utils as ku
 
 from comanipulationpy import *
-# from quantitative_tests import *
 from plots import *
 import sys
 
@@ -39,11 +26,6 @@ class TestingFramework:
         self.use_ros = use_ros
         self.plot = plot
 
-
-
-        ###################################
-        ### Robot and Envrionment Setup ###
-        ###################################
         
         self.env = openravepy.Environment()
         self.env.StopSimulation()
@@ -63,9 +45,6 @@ class TestingFramework:
             self.eef_link_name = "iiwa_link_ee"
             self.all_links = ["iiwa_link_1", "iiwa_link_2", "iiwa_link_3", "iiwa_link_4", "iiwa_link_5", "iiwa_link_6", "iiwa_link_7"]
 
-        # self.env.SetDefaultViewer()
-
-        # trajoptpy.SetInteractive(args.interactive) # pause every iteration, until you press 'p'. Press escape to disable further plotting
         self.robot = self.env.GetRobots()[0]
         self.manipulator = self.robot.GetManipulator(self.manipulator_name)
         self.eef_link = self.robot.GetLink(self.eef_link_name)
@@ -84,106 +63,14 @@ class TestingFramework:
 
             rospy.init_node("comanipulation_testing")
 
-            # if use_jaco:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2", "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6", "j2s7s300_joint_7"])
-            # elif use_franka:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("panda_arm_controller", ["panda_joint1", "panda_joint2", "panda_joint3", "panda_joint4", "panda_joint5", "panda_joint6", "panda_joint7"])
-            # else:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
+            if use_jaco:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2", "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6", "j2s7s300_joint_7"])
+            elif use_franka:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("panda_arm_controller", ["panda_joint1", "panda_joint2", "panda_joint3", "panda_joint4", "panda_joint5", "panda_joint6", "panda_joint7"])
+            else:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
 
-
-        ###################################
-        ### Variables                   ###
-        ###################################
-
-
-        self.base_link_world_offset = [0.5, -0.2, -1.0]
-        self.right_shoulder_base_link_offset = [-2.0, -0.5, 0]
-
-
-
-        self.right_shoulder_offsets =  {120 : [-1.5, -0.4, 0.1], 
-                                        124 : [-1.5, -0.5, 0.1],
-                                        131 : [-1.9, -0.5, 0.1],
-                                        144 : [-1.5, -0.5, 0],
-                                        165 : [-1.9, -0.5, 0],
-                                        204 : [-1.5, -0.4, 0],#
-                                        221 : [-1.9, -0.5, 0],#
-                                        240 : [-1.5, -0.5, 0],#
-                                        269 : [-1.9, -0.5, 0],#
-                                        274 : [-1.9, -0.5, 0],#
-                                        276 : [-1.9, -0.5, 0],#
-                                        281 : [-1.9, -0.5, 0],#
-                                        303 : [-1.9, -0.5, 0],#
-                                        520 : [-1.5, -0.4, 0.1], 
-                                        524 : [-1.5, -0.5, 0.1],
-                                        531 : [-1.9, -0.5, 0.1],
-                                        544 : [-1.5, -0.5, 0],
-                                        565 : [-1.9, -0.5, 0],
-                                        604 : [-1.5, -0.4, 0],#
-                                        621 : [-1.9, -0.5, 0],#
-                                        640 : [-1.5, -0.5, 0],#
-                                        669 : [-1.9, -0.5, 0],#
-                                        674 : [-1.9, -0.5, 0],#
-                                        676 : [-1.9, -0.5, 0],#
-                                        681 : [-1.9, -0.5, 0],#
-                                        703 : [-1.9, -0.5, 0],#
-                                        }
         
-
-
-        ###################################
-        ### IK (not working...)         ###
-        ###################################
-
-
-        # quat_target = [1,0,0,0] # wxyz
-        # xyz_target = [6.51073449e-01,  -1.87673551e-01, 4.91061915e-01]
-        # xyz_target = self.get_eef_position(joint_target)
-        # hmat_target = openravepy.matrixFromPose( np.r_[quat_target, xyz_target] )
-
-        # print("Starting IK")
-        # # BEGIN ik
-        # self.manip = self.robot.GetManipulator("test_arm")
-        # self.robot.SetActiveManipulator(self.manip)
-        # ikmodel = openravepy.databases.inversekinematics.InverseKinematicsModel(
-        #     self.robot, iktype=openravepy.IkParameterization.Type.Transform6D)
-        # if not ikmodel.load():
-        #     ikmodel.autogenerate()
-        # init_joint_target = ku.ik_for_link(hmat_target, self.manip, "j2s7s300_ee_link",
-        #     filter_options = openravepy.IkFilterOptions.CheckEnvCollisions)
-        # # END ik
-        # print("Finished IK")
-
-        # print(init_joint_target)
-        # joint_target = init_joint_target.tolist()
-
-        #############################################
-
-
-        # baseDir = "../human_prob_models/scripts/"
-        # trajectories = [baseDir + "csvFiles/otherTraj/traj_99.csv", baseDir + "csvFiles/otherTraj/traj_95.csv",baseDir + "csvFiles/otherTraj/traj_90.csv",baseDir + "csvFiles/otherTraj/traj_85.csv",baseDir + "csvFiles/otherTraj/traj_80.csv",baseDir + "csvFiles/otherTraj/traj_87.csv",baseDir + "csvFiles/otherTraj/traj_82.csv",baseDir + "csvFiles/otherTraj/traj_75.csv",baseDir + "csvFiles/otherTraj/traj_9.csv",baseDir + "csvFiles/otherTraj/traj_8.csv",baseDir + "csvFiles/otherTraj/traj_7.csv",baseDir + "csvFiles/otherTraj/traj_77.csv"]
-        # for trajectory in trajectories:
-        #     means = self.read_human_poses_mean(trajectory, 2)
-        #     self.crop_human_pose(means, 100, 4, "../human_prob_models/scripts/csvFiles/otherTraj/"+trajectory.split("/")[-1].split(".")[0]+"_trimmed.csv")
-        ###UNCOMMENT EVERYTHING BELOW LATER###
-
-
-        #############################################
-        ####     Straight Line Trajectory        ####
-        #############################################
-
-        # print("Calculating straight trajectory...")
-        # straight_traj = np.zeros((10, 7))
-        # for i in range(10):
-        #     for j in range(7):
-        #         straight_traj[i, j] = joint_start[j] + ((joint_target[j] - joint_start[j]) * i / 9)
-        # print(straight_traj)
-        # print("Following straight trajectory")
-        # straight_eef_traj = self.follow_trajectory(straight_traj)
-        # np.savetxt('trajectories/straight.txt', straight_eef_traj, delimiter=',')
-
-        ################################################
 
     
 
@@ -191,41 +78,9 @@ class TestingFramework:
     ######  Helper Functions
     ####################################################
 
-    def create_still_trajectories(self, traj_folder, traj_folder_path):
-        for traj in traj_folder:
-            file_name = traj.split("/")[-1].split(".")[0]
-            file_number = int(file_name.split("_")[1])
-            if file_number < 400:
-                new_file_name = file_name.split("_")[0]+"_"+str(file_number+400)
-                last_row = ""
-                with open(traj_folder_path+file_name+".csv", 'r') as f:
-                    for row in reversed(list(csv.reader(f))):
-                        last_row = row
-                        break
-                timesteps = 250
-                print("Creating ", new_file_name+".csv")
-                spamWriter = csv.writer(open(traj_folder_path+new_file_name+".csv", 'w'), delimiter=',', quotechar='|')
-                for timesteps in range(timesteps):
-                    spamWriter.writerow(last_row)
+    
 
-    def still_trajectories_wrapper(self):
-        train_folder = "../human_prob_models/scripts/csvFiles/Train/"
-        test_folder = "../human_prob_models/scripts/csvFiles/Test/"
-        train_traj = glob.glob(train_folder+"*.csv") 
-        test_traj = glob.glob(test_folder+"*.csv")
-        self.create_still_trajectories(train_traj, train_folder)
-        self.create_still_trajectories(test_traj, test_folder)        
-
-
-    def prep_data_for_prediction(self):
-        pose_mean_folder = "../human_prob_models/scripts/csvFiles/Test/*.csv"
-        trajectories = glob.glob(pose_mean_folder)
-        for trajectory in trajectories:
-            means = self.read_human_poses_mean(trajectory, 2)
-            file_name = trajectory.split("/")[-1].split(".")[0]
-            if not "trimmed"  in file_name and not "remainder"  in file_name:
-                print(file_name)
-                self.crop_human_pose(means, 100, 4, "../human_prob_models/scripts/csvFiles/Test/"+file_name+"_trimmed.csv", "../human_prob_models/scripts/csvFiles/Test/"+file_name+"_remainder.csv")
+    
 
 
 
@@ -234,32 +89,9 @@ class TestingFramework:
 
 
     def get_visibility_angle(self, head_pos, robot_joints, object_pos):
-
         eef_pos = self.get_eef_position(robot_joints)
-        # print(robot_joints)
-        # self.execute_trajectory([robot_joints])
-        # print(eef_pos)
-        # print(head_pos)
-        # print(object_pos)
-        
         vec_head_eef = np.array(head_pos) - np.array(eef_pos)
         vec_head_obj = np.array(head_pos) - np.array(object_pos)
-
-        # print(vec_head_eef)
-        # print(vec_head_obj)
-        # print(vec_head_obj.dot(vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
-        # print(math.acos(vec_head_obj.dot(vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef))))
-
-
-
-        # import tf
-        # br = tf.TransformBroadcaster()
-        # br.sendTransform((head_pos[0], head_pos[1], head_pos[2]), tf.transformations.quaternion_from_euler(0, 0, 0), rospy.Time.now(), "head", "world")
-        # br.sendTransform((eef_pos[0], eef_pos[1], eef_pos[2]), tf.transformations.quaternion_from_euler(0, 0, 0), rospy.Time.now(), "eef", "world")
-        # br.sendTransform((object_pos[0], object_pos[1], object_pos[2]), tf.transformations.quaternion_from_euler(0, 0, 0), rospy.Time.now(), "object", "world")
-
-        # raw_input()
-
         return math.acos(vec_head_obj.dot(vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
 
 
@@ -281,18 +113,13 @@ class TestingFramework:
         robot_sphere_radius = 0.05
         robot_sphere_num = 5
         distance = float('inf')
-
-        # plot_spheres(human_pos, robot_joints_pos)
         
         for curr_human_link in human_links:
             human_link_length = human_pos[3*curr_human_link[1]:3*(1+curr_human_link[1])] - human_pos[3*curr_human_link[0]:3*(1+curr_human_link[0])]
+            human_spheres_centers = [human_pos[3*curr_human_link[0]:3*(1+curr_human_link[0])] + i*human_link_length/human_sphere_num for i in range(human_sphere_num)]
             for curr_robot_link in robot_links:
-                robot_link_length = robot_joints_pos[3*curr_robot_link[1]:3*(1+curr_robot_link[1])] - robot_joints_pos[3*curr_robot_link[0]:3*(1+curr_robot_link[0])]
-
-                human_spheres_centers = [human_pos[3*curr_human_link[0]:3*(1+curr_human_link[0])] + i*human_link_length/human_sphere_num for i in range(human_sphere_num)]
+                robot_link_length = robot_joints_pos[3*curr_robot_link[1]:3*(1+curr_robot_link[1])] - robot_joints_pos[3*curr_robot_link[0]:3*(1+curr_robot_link[0])]                
                 robot_spheres_centers = [robot_joints_pos[3*curr_robot_link[0]:3*(1+curr_robot_link[0])] + i*robot_link_length/robot_sphere_num for i in range(robot_sphere_num)]
-                
-                # plot_spheres(human_pos, robot_joints_pos, human_spheres_centers, robot_spheres_centers)
                 
                 for human_sphere_center in human_spheres_centers:
                     for robot_sphere_center in robot_spheres_centers:
@@ -300,7 +127,6 @@ class TestingFramework:
                         curr_distance = center_dist - human_sphere_radius - robot_sphere_radius
                         distance = min(distance, curr_distance)
 
-        # print("Separation Distance at this time = ", distance)
         return distance
 
     def cubic_interpolation(self, robot_joints, robot_num_joints):
@@ -344,7 +170,6 @@ class TestingFramework:
         posevec = openravepy.poseFromMatrix(self.eef_link.GetTransform())
         position = posevec[4:7]
         pos = np.array([position[0], position[1], position[2]])
-        # raw_input(pos)
         return pos
 
     
@@ -355,11 +180,9 @@ class TestingFramework:
             p_eef_t = self.get_eef_position(traj[i])
             for j in range(3):
                 eef_traj[i, j] = p_eef_t[j]
-            # raw_input(eef_traj[i])
         return eef_traj
 
     def execute_trajectory(self, traj):
-        # if self.use_ros and not self.use_jaco:
         print("Executing trajectory!")
         raw_input("Ready to move to initial position")
         # self.follow_joint_trajectory_client.move_to(traj[0], duration=1)
@@ -392,154 +215,7 @@ class TestingFramework:
     ####################################################
 
 
-    def crop_human_pose(self, human_pose_mean, timesteps, dof, csv_save_path, csv_remainder_path):
-        spamWriter = csv.writer(open(csv_save_path, 'w'), delimiter=',', quotechar='|')
-        spamWriter2 = csv.writer(open(csv_remainder_path, 'w'), delimiter=',', quotechar='|')
-        for timestep in range(timesteps):
-            spamWriter.writerow([str(human_pose_mean[timestep*dof*3 + i]) for i in range(dof*3)])
-
-        for timestep in range(timesteps, len(human_pose_mean)/(dof*3)):
-            spamWriter2.writerow([str(human_pose_mean[timestep*dof*3 + i]) for i in range(dof*3)])
-
     
-    #Takes in mean_pos which is a 2D matrix (Mode 1) and var_pos which is a 3D matrix (Mode 1)    
-    def sample_human_trajectory(self, mean_pos, var_pos):
-        sample = []
-        for i in range(0, len(mean_pos)):
-            sample = sample + list(np.random.multivariate_normal(mean_pos[i], var_pos[i]))
-        return sample
-
-    #mean output will depend on mode
-    #Mode 1 - mean is a 2d matrix of size timesteps * (joints*3)
-    #Mode 2 - mean is an array of length timesteps * joints * 3
-    def read_human_poses_mean(self, csv_path, mode=2):
-
-        with open(csv_path) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            mean = []
-            if mode == 1:
-                for row in csv_reader:
-                    curr_row = []
-                    for col in row:
-                        curr_row.append(float(col))
-                    mean.append(curr_row)
-            elif mode == 2:
-                for row in csv_reader:
-                    for col in row:
-                        mean.append(float(col))
-            return mean
-
-
-    #var output will depend on the mode
-    #Mode 1 - returns a 3D matrix of size timesteps * (joints * 3) * (joints * 3) >> all covariances
-    #Mode 2 - returns an array of length timesteps * joints * 9 >> only the variances along the 3x3 block matricies along the diagonal
-    #Mode 3 - returns an array of length timesteps * joints * 3 >> only the variances along the covariance matrix diagonal 
-    def read_human_poses_var(self, csv_path, mode=2):
-        with open(csv_path) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            var = []
-            for row in csv_reader:
-                numCol = int(math.sqrt(len(row)))
-                if mode == 1:
-                    curr_matrix = []
-                    for i in range(0, numCol):
-                        curr_row = []
-                        for j in range(0, numCol):
-                            curr_row.append(float(row[i*numCol + j]))
-                        curr_matrix.append(curr_row)
-                    var.append(curr_matrix)
-                elif mode == 2:
-                    for i in range(0, numCol):
-                        for j in range(0, numCol):
-                            if j < 3*(i/3):
-                                continue
-                            elif j >= (3*(i/3) + 3):
-                                continue
-                            else:
-                                # print("coord = ", i, j)
-                                var.append(float(row[i*numCol + j]))
-                elif mode == 3:
-                    for i in range(0, numCol):
-                        for j in range(0, numCol):
-                            if i==j:
-                                # print("coord = ", i, j)
-                                var.append(float(row[i*numCol + j]))
-        return var
-
-    def load_all_human_trajectories(self, traj_num):
-        base_dir = "../human_prob_models/scripts/csvFiles/"
-
-        full_rightarm_test_traj_file = base_dir + "Test/traj_" + str(traj_num) + ".csv"
-        full_rightarm_test_traj = self.read_human_poses_mean(full_rightarm_test_traj_file)
-        full_rightarm_test_traj = self.add_offset_human_traj(full_rightarm_test_traj, 4, traj_num)
-
-        obs_rightarm_test_traj_file = base_dir + "Test/traj_" + str(traj_num) + "_trimmed.csv"
-        obs_rightarm_test_traj = self.read_human_poses_mean(obs_rightarm_test_traj_file)
-        obs_rightarm_test_traj = self.add_offset_human_traj(obs_rightarm_test_traj, 4, traj_num)
-
-        rightarm_pred_traj_means_file = base_dir + "Predictions/predSampledtraj_" + str(traj_num) + "_trimmed.csv"
-        rightarm_pred_traj_means = self.read_human_poses_mean(rightarm_pred_traj_means_file)
-        rightarm_pred_traj_means = self.add_offset_human_traj(rightarm_pred_traj_means, 4, traj_num)
-
-        rightarm_pred_traj_var_file = base_dir + "Predictions/varPredSampledtraj_" + str(traj_num) + "_trimmed.csv"
-        rightarm_pred_traj_var = self.read_human_poses_var(rightarm_pred_traj_var_file)
-
-        complete_pred_traj_means, complete_pred_traj_vars = create_human_means_vars(rightarm_pred_traj_means, rightarm_pred_traj_var)
-
-        return full_rightarm_test_traj, obs_rightarm_test_traj, complete_pred_traj_means, complete_pred_traj_vars
-
-    
-    def add_offset_human_traj(self, human_traj, num_joints, traj_num):
-        num_timesteps = len(human_traj) / (num_joints * 3)
-        for i in range(num_timesteps):
-            for j in range(num_joints):
-                human_traj[i * num_joints * 3 + j * 3 + 0] = human_traj[i * num_joints * 3 + j * 3 + 0] + self.right_shoulder_offsets[traj_num][0]
-                human_traj[i * num_joints * 3 + j * 3 + 1] = human_traj[i * num_joints * 3 + j * 3 + 1] + self.right_shoulder_offsets[traj_num][1]
-                human_traj[i * num_joints * 3 + j * 3 + 2] = human_traj[i * num_joints * 3 + j * 3 + 2] + self.right_shoulder_offsets[traj_num][2]
-        return human_traj
-
-
-    def visualize_all_traj(self):
-        # traj_nums = [120, 124, 131, 144, 165, 204, 221, 240, 269, 274, 276, 281, 303]
-        traj_nums = [520, 524, 531, 544, 565, 604, 621, 640, 669, 674, 676, 681, 703]
-        i = 0
-        while i < len(traj_nums):
-            num = traj_nums[i]
-            full_rightarm_test_traj, obs_rightarm_test_traj, complete_pred_traj_means, complete_pred_traj_vars = self.load_all_human_trajectories(num)
-            full_complete_test_traj_tree = create_human_trajectory_tree(full_rightarm_test_traj)
-            raw_input("Ready to visualize trajectory number " + str(num) + " with " + str(len(full_rightarm_test_traj)/12) + " timesteps")
-                
-            self.follow_joint_trajectory_client.visualize_human_trajectory(0.01, len(full_rightarm_test_traj)/12, full_complete_test_traj_tree)
-
-            in_key = raw_input("Press r to repeat traj num " + str(num) + ", enter to continue\n")
-
-            if in_key != 'r':
-                i += 1
-
-    def visualize_traj_pred(self):
-        # traj_nums = [120, 124, 131, 144, 165, 204, 221, 240, 269, 274, 276, 281, 303]
-        traj_nums = [520, 524, 531, 544, 565, 604, 621, 640, 669, 674, 676, 681, 703]
-        i = 0
-        while i < len(traj_nums):
-            num = traj_nums[i]
-            full_rightarm_test_traj, obs_rightarm_test_traj, complete_pred_traj_means, complete_pred_traj_vars = self.load_all_human_trajectories(num)
-            obs_complete_test_traj_tree = create_human_trajectory_tree(obs_rightarm_test_traj)
-
-            rightarm_pred_traj_mean = []
-            for j in range(len(complete_pred_traj_means) / 33):
-                rightarm_pred_traj_mean = rightarm_pred_traj_mean + complete_pred_traj_means[j * 33 : j * 33 + 12]
-            complete_pred_traj_mean_tree = create_human_trajectory_tree(rightarm_pred_traj_mean)
-
-
-            raw_input("Ready to visualize trajectory number " + str(num) + " with " + str(len(full_rightarm_test_traj)/12) + " timesteps")
-                
-            self.follow_joint_trajectory_client.visualize_human_trajectory(0.01, len(obs_rightarm_test_traj)/12, obs_complete_test_traj_tree)
-            self.follow_joint_trajectory_client.visualize_human_trajectory(0.01, len(complete_pred_traj_means)/33, complete_pred_traj_mean_tree)
-
-            in_key = raw_input("Press r to repeat traj num " + str(num) + ", enter to continue\n")
-
-            if in_key != 'r':
-                i += 1
 
     def get_human_obs_and_prediction(self):
         if not self.use_ros:
@@ -811,9 +487,6 @@ class TestingFramework:
 
         request = create_empty_request(num_timesteps, final_joint, self.manipulator_name)
 
-        xyz_target = self.get_eef_position(final_joint)
-        xyz_init = self.get_eef_position(init_joint)
-
         add_optimal_trajectory_cost(request, ref_traj, self.eef_link_name, num_timesteps, 5)
 
         result = self.optimize_problem(request)
@@ -984,7 +657,7 @@ class TestingFramework:
             robot_timestep = (t - num_obs_timesteps) / 10.0
             robot_joints = robot_traj_spline(robot_timestep)
 
-            dist_t = self.get_separation_dist(full_complete_test_traj_expanded[t * n_human_joints * 3 : t * n_human_joints * 3 + n_human_joints * 3], robot_joints)
+            dist_t = self.get_separation_dist(full_complete_test_traj_expanded[t*n_human_joints*3 : (t+1)*n_human_joints*3], robot_joints)
             if dist_t > distance_threshold:
                 num_above_threshold += 1
         
@@ -999,15 +672,12 @@ class TestingFramework:
 
         visibilities = []
 
-        # for t in range(len(robot_traj)):
+
         for t in range(num_obs_timesteps, num_total_timesteps):
             robot_timestep = (t - num_obs_timesteps) / 10.0
             robot_joints = robot_traj_spline(robot_timestep)
-            # robot_joints = robot_traj[t]
-
-            # human_timestep = num_obs_timesteps + (t * 10)
-
-            # vis_t = self.get_visibility_angle(complete_test_head_traj[human_timestep * 3: human_timestep * 3 + 3], robot_joints, object_pos)
+            
+            
             vis_t = self.get_visibility_angle(full_head_test_traj_expanded[t * 3: t * 3 + 3], robot_joints, object_pos)
             # print(vis_t)
 
@@ -1015,16 +685,6 @@ class TestingFramework:
 
             if vis_t < visibility_threshold:
                 num_below_thres += 1
-            
-        # import pandas as pd
-        # import seaborn as sns
-        # from scipy import stats
-        # import matplotlib.pyplot as plt
-
-        # # sns.set(color_codes=True)
-        # # sns.distplot(visibilities)
-        # plt.plot(visibilities)
-        # plt.show()
         
         return num_below_thres / (num_total_timesteps - num_obs_timesteps)
 
@@ -1032,22 +692,22 @@ class TestingFramework:
         num_timesteps = np.array(robot_traj).shape[0]
         d_eef_s_q = np.zeros((num_timesteps - 1))
         legibility = 0
-        f_t = np.ones((num_timesteps - 1))
+        f_t = np.ones((num_timesteps - 1)) # what is this variable?
 
-        p_eef_g = self.get_eef_position(robot_traj[-1])
-        p_eef_s = self.get_eef_position(robot_traj[0])
+        eef_goal_pos = self.get_eef_position(robot_traj[-1])
+        eef_start_pos = self.get_eef_position(robot_traj[0])
 
-        Cstar_s_g = np.linalg.norm(p_eef_g - p_eef_s)
+        start_goal_dist = np.linalg.norm(eef_goal_pos - eef_start_pos)
 
         for i in range(num_timesteps - 1):
-            p_eef_t = self.get_eef_position(robot_traj[i])
-            p_eef_t1 = self.get_eef_position(robot_traj[i + 1])
-            d_eef_s_q[i] = np.linalg.norm(p_eef_t1 - p_eef_t)
+            curr_eef_pos = self.get_eef_position(robot_traj[i])
+            next_eef_pos = self.get_eef_position(robot_traj[i + 1])
+            eef_pos_dist[i] = np.linalg.norm(next_eef_pos - curr_eef_pos)
 
-            Cstar_q_g = np.linalg.norm(p_eef_g - p_eef_t1)
-            C_s_q = np.sum(d_eef_s_q[:i])
+            dist_remaining = np.linalg.norm(eef_goal_pos - next_eef_pos)
+            dist_traveled = np.sum(eef_pos_dist[:i])
 
-            p_g_given_q = np.exp(-C_s_q - Cstar_q_g) / np.exp(-Cstar_s_g)
+            p_g_given_q = np.exp(-dist_traveled - dist_remaining) / np.exp(-start_goal_dist)
             legibility += p_g_given_q * f_t[i]
 
         legibility = legibility / np.sum(f_t)
@@ -1081,9 +741,10 @@ class TestingFramework:
         print("Num human timesteps expanded: ", num_timesteps_expanded)
 
         for i in range(num_timesteps_expanded):
-            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[i * num_human_joints * 3 + head_ind * 3 + 0])
-            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[i * num_human_joints * 3 + head_ind * 3 + 1])
-            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[i * num_human_joints * 3 + head_ind * 3 + 2])
+            start_head_pos = (i * num_human_joints + head_ind) * 3
+            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[start_head_pos])
+            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[start_head_pos + 1])
+            full_head_test_traj_expanded.append(full_complete_test_traj_expanded[start_head_pos + 2])
 
 
 
@@ -1127,19 +788,19 @@ class TestingFramework:
 
         exec_complete_test_traj = full_complete_test_traj[num_obs_timesteps * n_human_joints * 3 : ]
 
-        # Setup coefficients
-        coeff_optimal_traj = 5.0
-        coeff_dist = []
-        coeff_vel = []
-        coeff_vis = []
-        coeff_leg = 1.0
-        coeffs_reg = []
-        for i in range(num_timesteps):
-            coeff_dist.append(100.0)
-            coeff_vel.append(100.0)
-            coeff_vis.append(1.0)
-        for i in range(num_timesteps - 1):
-            coeffs_reg.append(1.0)
+        # # Setup coefficients
+        # coeff_optimal_traj = 5.0
+        # coeff_dist = []
+        # coeff_vel = []
+        # coeff_vis = []
+        # coeff_leg = 1.0
+        # coeffs_reg = []
+        # for i in range(num_timesteps):
+        #     coeff_dist.append(100.0)
+        #     coeff_vel.append(100.0)
+        #     coeff_vis.append(1.0)
+        # for i in range(num_timesteps - 1):
+        #     coeffs_reg.append(1.0)
 
         self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
         default_traj, default_eef_traj = self.get_default_trajectory(init_joint, final_joint, num_timesteps)
@@ -1192,32 +853,6 @@ class TestingFramework:
 
         self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
         default_traj, default_eef_traj = self.get_default_trajectory(init_joint, final_joint, num_timesteps)
-
-        # self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
-
-        # dist_request = create_empty_request(20, final_joint, self.manipulator_name)
-        # add_distance_baseline_cost(dist_request, head_pos, torso_pos, feet_pos, self.eef_link_name, 20, 5)
-        # add_regularize_cost(dist_request, coeffs_reg, self.eef_link_name)
-        # add_collision_cost(dist_request, [20], [0.025])
-        # add_smoothing_cost(dist_request, 10, 2)
-
-        # dist_result = self.optimize_problem(dist_request)
-        # if (exec_traj):
-        #     self.execute_full_trajectory(dist_result.GetTraj(), full_rightarm_test_traj, num_obs_timesteps, num_human_timesteps)
-
-
-        # self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
-
-        # vis_request = create_empty_request(20, final_joint, self.manipulator_name)
-        # add_visibility_baseline_cost(vis_request, head_pos, object_pos, self.eef_link_name, 20, 5)
-        # add_regularize_cost(vis_request, coeffs_reg, self.eef_link_name)
-        # add_collision_cost(vis_request, [20], [0.025])
-        # add_smoothing_cost(vis_request, 10, 2)
-
-        # vis_result = self.optimize_problem(vis_request)
-        # if (exec_traj):
-        #     self.execute_full_trajectory(vis_result.GetTraj(), full_rightarm_test_traj, num_obs_timesteps, num_human_timesteps)
-
 
         self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
 
@@ -1363,22 +998,10 @@ class TestingFramework:
 
         exec_complete_test_traj = full_complete_test_traj[num_obs_timesteps * n_human_joints * 3 : ]
 
-        # Setup coefficients
-        coeff_optimal_traj = 5.0
-        coeff_dist = []
-        coeff_vel = []
-        coeff_vis = []
-        coeff_leg = 100.0
         coeffs_reg = []
-        for i in range(num_timesteps):
-            coeff_dist.append(100.0)
-            coeff_vel.append(100.0)
-            coeff_vis.append(1.0)
         for i in range(num_timesteps - 1):
             coeffs_reg.append(1.0)
 
-        self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
-        default_traj, default_eef_traj = self.get_default_trajectory(init_joint, final_joint, num_timesteps)
         self.robot.SetDOFValues(init_joint, self.manipulator.GetArmIndices())
 
         leg_request = create_empty_request(20, final_joint, self.manipulator_name)

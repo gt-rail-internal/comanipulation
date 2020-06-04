@@ -79,18 +79,17 @@ class FollowTrajectoryClient(object):
         trajectory = JointTrajectory()
         trajectory.joint_names = self.joint_names
         for t, point in enumerate(points):
-        	# print(point)
         	trajectory.points.append(JointTrajectoryPoint())
         	trajectory.points[-1].positions = point
         	trajectory.points[-1].velocities = [0.0 for _ in point]
         	trajectory.points[-1].accelerations = [0.0 for _ in point]
-        	trajectory.points[-1].time_from_start = rospy.Duration(t * duration)
+        	trajectory.points[-1].time_from_start = rospy.Duration((t + 1) * duration)
     	follow_goal = FollowJointTrajectoryGoal()
     	follow_goal.trajectory = trajectory
     	self.client.send_goal(follow_goal)
-    	# print("sent, waiting...")
+    	print("sent, waiting...")
     	self.client.wait_for_result()
-    	# print("Done...")
+    	print("Done...")
 
     def execute_full_trajectory(self, points, robot_timestep_size, human_timestep_size, obs_steps_human, exec_steps_human, exec_steps_robot, human_trajectory):
         # rate = rospy.Rate(1.0 / human_timestep_size)
@@ -242,13 +241,13 @@ if __name__ == "__main__":
     # follow_joint_trajectory_client = FollowTrajectoryClient("panda_arm_controller", ["panda_joint1", "panda_joint2", "panda_joint3", "panda_joint4", "panda_joint5", "panda_joint6", "panda_joint7"])
 
 
-    follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller/", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
-
+    # follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller/", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
+    follow_joint_trajectory_client = FollowTrajectoryClient("jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2", "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6", "j2s7s300_joint_7"])
 
     points = [[1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0], [2.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0], [0, 0, 0, 0, 0, 0, 0]]
     
     raw_input("waiting to publish")
-    follow_joint_trajectory_client.follow_trajectory(points, duration=0.5)
+    follow_joint_trajectory_client.follow_trajectory(points, duration=5)
 
     # br = tf.TransformBroadcaster()
     # rate = rospy.Rate(10.0)

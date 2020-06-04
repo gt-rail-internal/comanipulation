@@ -102,6 +102,9 @@ def add_legibility_cost(request, coeffs, link):
 
 
 def add_optimal_trajectory_cost(request, target_eef_traj, link, num_timesteps, coeffs):
+    """
+    The "optimal" trajectory may actually be the default trajectory here
+    """
     if "costs" not in request:
         request["costs"] = []
     for t in range(num_timesteps):
