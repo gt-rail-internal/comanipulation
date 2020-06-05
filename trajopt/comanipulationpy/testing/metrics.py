@@ -89,7 +89,7 @@ def cubic_interpolation(robot_joints, robot_num_joints):
     x = list(range(0, len(robot_joints_pos)))
     return CubicSpline(x, robot_joints_pos)
 
-def evaluate_metrics(self, robot_traj, full_complete_test_traj, num_obs_timesteps, object_pos, nominal_traj):
+def evaluate_metrics(robot_traj, full_complete_test_traj, num_obs_timesteps, object_pos, nominal_traj):
     """
     Evaluates each metric on the robot, then prints its results
 
