@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 
-# import actionlib
-# from actionlib_msgs.msg import *
-# from geometry_msgs.msg import *
+import actionlib
+from actionlib_msgs.msg import *
+from geometry_msgs.msg import *
 import math
-# from std_msgs.msg import Float64
-# import rospy
-# import tf
-# from tf import TransformListener
+from std_msgs.msg import Float64
+import rospy
+import tf
+from tf import TransformListener
 import numpy as np
 import csv
 import glob
@@ -63,9 +63,9 @@ class TestingFramework:
             self.eef_link_name = "iiwa_link_ee"
             self.all_links = ["iiwa_link_1", "iiwa_link_2", "iiwa_link_3", "iiwa_link_4", "iiwa_link_5", "iiwa_link_6", "iiwa_link_7"]
 
-        self.env.SetDefaultViewer()
+        # self.env.SetDefaultViewer()
 
-        trajoptpy.SetInteractive(args.interactive) # pause every iteration, until you press 'p'. Press escape to disable further plotting
+        # trajoptpy.SetInteractive(args.interactive) # pause every iteration, until you press 'p'. Press escape to disable further plotting
         self.robot = self.env.GetRobots()[0]
         self.manipulator = self.robot.GetManipulator(self.manipulator_name)
         self.eef_link = self.robot.GetLink(self.eef_link_name)
@@ -84,12 +84,12 @@ class TestingFramework:
 
             rospy.init_node("comanipulation_testing")
 
-            # if use_jaco:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2", "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6", "j2s7s300_joint_7"])
-            # elif use_franka:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("panda_arm_controller", ["panda_joint1", "panda_joint2", "panda_joint3", "panda_joint4", "panda_joint5", "panda_joint6", "panda_joint7"])
-            # else:
-            #     self.follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
+            if use_jaco:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2", "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6", "j2s7s300_joint_7"])
+            elif use_franka:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("panda_arm_controller", ["panda_joint1", "panda_joint2", "panda_joint3", "panda_joint4", "panda_joint5", "panda_joint6", "panda_joint7"])
+            else:
+                self.follow_joint_trajectory_client = FollowTrajectoryClient("iiwa/PositionJointInterface_trajectory_controller", ["iiwa_joint_1", "iiwa_joint_2", "iiwa_joint_3", "iiwa_joint_4", "iiwa_joint_5", "iiwa_joint_6", "iiwa_joint_7"])
 
 
         ###################################
