@@ -41,7 +41,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from std_msgs.msg import String
 
 from geometry_msgs.msg import Point
-# from human_traj_display.srv import ExecuteHumanTraj
+from human_traj_display.srv import ExecuteHumanTraj
 
 
 # Send a trajectory to controller
