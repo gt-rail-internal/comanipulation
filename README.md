@@ -84,7 +84,7 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     3. robotiq_85_gripper_actions ([GT-RAIL github](https://github.com/GT-RAIL/robotiq_85_gripper_actions)) - `melodic-7dof` branch
     4. rail_manipulation_msgs ([GT-RAIL github](https://github.com/GT-RAIL/rail_manipulation_msgs)) - `melodic-7dof` branch
     5. Azure_Kinect_ROS_Driver ([microsoft github](https://github.com/microsoft/Azure_Kinect_ROS_Driver))
-    6. Iiwa_stack ([IFL Camp](https://github.com/IFL-CAMP/iiwa_stack)) - `master` branch
+    6. Iiwa_stack ([Abhinav Jain](https://github.com/abhinavj30/iiwa_stack)) - `master` branch
 
 ## Building
 
