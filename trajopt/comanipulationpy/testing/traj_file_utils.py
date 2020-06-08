@@ -6,9 +6,7 @@ import os.path as path
 import numpy as np
 import math
 
-import sys
-sys.path.append(path.dirname(path.abspath(path.join(__file__, ".."))))
-from comanipulationpy import create_human_means_vars, create_human_trajectory_tree
+from traj_utils import create_human_means_vars, create_human_trajectory_tree
 
 CSV_FOLDER = "../human_prob_models/scripts/csvFiles"
 TRAIN_FOLDER = path.join(CSV_FOLDER, "Train")
