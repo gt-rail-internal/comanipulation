@@ -46,7 +46,6 @@ def still_trajectories_wrapper():
     """
     Calls create_still_trajectories with hardcoded folder
     """
-    # TODO: ensure relative path is still correct, make relative path unnecessary
     train_traj = glob.glob(path.join(TRAIN_FOLDER, "*.csv"))
     test_traj = glob.glob(path.join(TEST_FOLDER, "*.csv"))
     create_still_trajectories(train_traj+test_traj)
@@ -59,8 +58,6 @@ def prep_data_for_prediction(pose_mean_folder=TEST_FOLDER):
 
     pose_mean_folder: the path to the folder containing the prediction data
     """
-    # TODO: relative paths
-
     csv_glob = path.join(pose_mean_folder, "*.csv")
     traj_paths = glob.glob(csv_glob)
     for traj_path in traj_paths:

@@ -52,6 +52,7 @@ class FollowTrajectoryClient(object):
                                                    FollowJointTrajectoryAction)
         rospy.loginfo("Waiting for %s..." % name)
         self.client.wait_for_server()
+        rospy.loginfo("Found %s" % name)
         self.joint_names = joint_names
 
     def move_to(self, positions, duration=5.0):

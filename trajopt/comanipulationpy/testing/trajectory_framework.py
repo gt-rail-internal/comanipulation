@@ -69,13 +69,11 @@ class TrajectoryFramework:
         self.ros_initialized = True
         
 
-    def setup_test_without_ros(self, init_joint, final_joint,
-                               traj_num=303, exec_traj=False):
+    def setup_test_without_ros(self, init_joint, final_joint, traj_num=303):
         """
         Uses a hardcoded set of weights and object position to optimize a trajectory.
-        Potentially executes trajectory with execute_full_trajectory. Prints information
-        on the trajectory, including using evaluate_metrics. Returns values from
-        evaluate_metrics.
+        Prints information on the trajectory, including using evaluate_metrics. Returns 
+        values from evaluate_metrics.
         """
         self.trajectory_solver.load_traj_file(traj_num)
         num_timesteps = self.trajectory_solver.n_pred_timesteps
@@ -108,22 +106,28 @@ class TrajectoryFramework:
             len(self.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
             OBJECT_POS, default_traj)
 
-    def setup_test(self, init_joint, final_joint, execute=False):
+    def setup_test(self, init_joint, final_joint, traj_num=-1, execute=False):
         """
         Gets a predicted human trajectory with ROS, then solves an optimal trajectory to respond 
         and potentially executes it.
 
         init_joint: the starting joint configuration of the trajectory
         final_joint: the goal joint configuration
+        traj_num: the number of the trajectory to load, OR a negative number 
+            to read human poses from a ROS topic
         execute: whether to execute the solved trajectory
         """
         if not self.ros_initialized:
             self.setup_ros()
 
-        # Get prediction from human_traj_pred stream
-        complete_pred_traj_means, complete_pred_traj_vars = get_human_obs_and_prediction()
 
-        self.trajectory_solver.set_traj(complete_pred_traj_means, complete_pred_traj_vars)
+        if traj_num > 0:
+            self.trajectory_solver.load_traj_file(traj_num)
+        else:
+            # Get prediction from human_traj_pred stream
+            complete_pred_traj_means, complete_pred_traj_vars = get_human_obs_and_prediction()
+            self.trajectory_solver.set_traj(complete_pred_traj_means, complete_pred_traj_vars)
+
         num_timesteps = self.trajectory_solver.n_pred_timesteps
 
         coeffs = {

@@ -4,6 +4,7 @@ import openravepy
 import numpy as np
 import json
 
+#TODO uncomment this once matlab works
 # import matlab.engine
 import rospy
 from std_msgs.msg import String
