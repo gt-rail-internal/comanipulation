@@ -135,7 +135,7 @@ def print_metrics(our_metrics, baseline_metrics, test_case):
 
 if __name__ == '__main__':
 
-    test_framework = TestingFramework(False, False, False, False)
+    test_framework = TestingFramework(True, False, True, True)
 
 
     # joint_start = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

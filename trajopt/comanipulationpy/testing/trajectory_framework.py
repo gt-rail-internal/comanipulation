@@ -108,14 +108,14 @@ class TrajectoryFramework:
             len(self.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
             OBJECT_POS, default_traj)
 
-    def setup_test(self, init_joint, final_joint, exec_traj=False):
+    def setup_test(self, init_joint, final_joint, execute=False):
         """
         Gets a predicted human trajectory with ROS, then solves an optimal trajectory to respond 
         and potentially executes it.
 
         init_joint: the starting joint configuration of the trajectory
         final_joint: the goal joint configuration
-        exec_traj: whether to execute the solved trajectory
+        execute: whether to execute the solved trajectory
         """
         if not self.ros_initialized:
             self.setup_ros()
@@ -140,7 +140,7 @@ class TrajectoryFramework:
         result, _ = self.trajectory_solver.solve_traj(init_joint, final_joint, 
                         coeffs=coeffs, object_pos=OBJECT_POS)
 
-        if exec_traj:
+        if execute:
             self.scene.execute_trajectory(result.GetTraj())
 
         return result
