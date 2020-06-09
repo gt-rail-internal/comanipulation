@@ -64,7 +64,7 @@ class TrajectoryFramework:
         """
         rospy.init_node("comanipulation_testing")
 
-        self.follow_joint_trajectory_client = FollowTrajectoryClient(
+        self.scene.follow_joint_trajectory_client = FollowTrajectoryClient(
             self.robot_info.controller_name, self.robot_info.controller_joints)
         self.ros_initialized = True
         
