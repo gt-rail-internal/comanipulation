@@ -141,10 +141,13 @@ class TrajectoryFramework:
             'smoothing': dict(cost=200, type=2)
         }
 
-        result, _ = self.trajectory_solver.solve_traj(init_joint, final_joint, 
-                        coeffs=coeffs, object_pos=OBJECT_POS)
-
-        if execute:
-            self.scene.execute_trajectory(result.GetTraj())
+        if traj_num > 0:
+            result, _ = self.trajectory_solver.solve_traj_save_plot_exec(init_joint, final_joint, coeffs=coeffs, 
+                object_pos=OBJECT_POS, execute=execute)
+        else:
+            result, _ = self.trajectory_solver.solve_traj(init_joint, final_joint, 
+                            coeffs=coeffs, object_pos=OBJECT_POS)
+            if execute:
+                self.scene.execute_trajectory(result.GetTraj())
 
         return result

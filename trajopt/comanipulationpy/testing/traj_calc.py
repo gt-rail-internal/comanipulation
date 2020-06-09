@@ -114,6 +114,8 @@ class TrajectoryPlanner:
                                   plot, full_complete_test_traj, 11)
         if save != '':
             np.savetxt(save, eef_traj, delimiter=',')
+            
+        return result, eef_traj
 
     def solve_traj(self, init_joint, final_joint, coeffs={}, object_pos=[0, 0.2, 0.83]):
         """
