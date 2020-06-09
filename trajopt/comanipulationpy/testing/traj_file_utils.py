@@ -228,13 +228,13 @@ def add_offset_human_traj(human_traj, num_joints, traj_num):
     num_timesteps = len(human_traj) / (num_joints * 3)
     for i in range(num_timesteps):
         for j in range(num_joints):
-            human_traj[i * num_joints + j * 3 + 0] = \
+            human_traj[(i*num_joints + j) * 3 + 0] = \
                 human_traj[(i*num_joints + j) * 3 + 0] + \
                 const.RIGHT_SHOULDER_OFFSETS[traj_num][0]
-            human_traj[i * num_joints + j * 3 + 1] = \
+            human_traj[(i*num_joints + j) * 3 + 1] = \
                 human_traj[(i*num_joints + j) * 3 + 1] + \
                 const.RIGHT_SHOULDER_OFFSETS[traj_num][1]
-            human_traj[i * num_joints + j * 3 + 2] = \
+            human_traj[(i*num_joints + j) * 3 + 2] = \
                 human_traj[(i*num_joints + j) * 3 + 2] + \
                 const.RIGHT_SHOULDER_OFFSETS[traj_num][2]
     return human_traj

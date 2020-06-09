@@ -50,10 +50,6 @@ def create_human_trajectory_tree(right_arm_trajectory):
         human_trajectory["left_wrist"].append([0, 0, -0.3])
         human_trajectory["left_palm"].append([0, 0, -0.1])
 
-    start_traj = {}
-    for key, value in human_trajectory.iteritems():
-        start_traj[key] = value[0]
-    print(start_traj)
     return human_trajectory
 
 # parse human pose means and vars and return full skeleton for optimization

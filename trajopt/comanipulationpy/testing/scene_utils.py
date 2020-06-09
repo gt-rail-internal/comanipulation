@@ -90,7 +90,7 @@ class Scene:
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
         self.follow_joint_trajectory_client.execute_full_trajectory(
             traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
-
+            
 
     # use openrave's FK module to get robot_joints in cartesian space rather than joint space
     def performFK(self, robot_joints):
