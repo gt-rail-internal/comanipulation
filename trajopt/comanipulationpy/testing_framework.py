@@ -336,7 +336,6 @@ class TestingFramework:
         order = ['right_shoulder', 'right_elbow', 'right_wrist', 'right_palm', 'neck', 'head', 'torso', 'left_shoulder', 'left_elbow', 'left_wrist', 'left_palm']
 
         final_trajectory = np.zeros([len(human_traj[order[0]][::10]), len(order)*3])
-        print(np.shape(final_trajectory))
         for index, joint in enumerate(order):
             final_trajectory[:, 3*index:3*(index + 1)] = human_traj[joint][::10] ##each timestep needs to be vectorized
         
@@ -384,8 +383,9 @@ class TestingFramework:
         full_human_traj = create_human_trajectory_tree(human_traj)
         sub_human_traj = self.get_subsampled_human_from_dict(full_human_traj)
 
-        for i in range(min(len(traj), len(sub_human_traj))):
-            curr_distance = self.get_separation_dist(sub_human_traj[i], traj[i])
+        print("Separation distances for real trajectory")
+        for i in range(max(len(traj), len(sub_human_traj))):
+            curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)])
             print(curr_distance)
 
         raw_input("Ready for Gazebo execution")
@@ -906,6 +906,15 @@ class TestingFramework:
         add_smoothing_cost(request, 200, 2)
 
         result = self.optimize_problem(request)
+        sub_human_traj = np.array(complete_pred_traj_means).reshape(-1, 11*3)
+        robot_trajectory = result.GetTraj()
+
+        print("Separation Distances for predicted human trajectory: ")
+        for i in range(max(len(robot_trajectory), len(sub_human_traj))):
+            curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], robot_trajectory[min(i, len(robot_trajectory) - 1)])
+            print(curr_distance)        
+
+
         if (exec_traj):
             self.execute_full_trajectory(result.GetTraj(), full_rightarm_test_traj, len(obs_rightarm_test_traj) / 12, len(full_rightarm_test_traj) / 12)
 

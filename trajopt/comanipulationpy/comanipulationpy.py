@@ -259,7 +259,6 @@ def create_human_trajectory_tree(right_arm_trajectory):
 def create_human_means_vars(human_poses_mean, human_poses_var):
 
     num_timesteps = len(human_poses_mean)/12
-
     human_global_trajectory = []
     human_variance = []
 
