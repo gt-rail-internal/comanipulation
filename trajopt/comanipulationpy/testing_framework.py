@@ -383,13 +383,22 @@ class TestingFramework:
         full_human_traj = create_human_trajectory_tree(human_traj)
         sub_human_traj = self.get_subsampled_human_from_dict(full_human_traj)
 
+        execution_traj = []
+        collision_threshold = 0.25
+
         print("Separation distances for real trajectory")
+        last_pos = None
         for i in range(max(len(traj), len(sub_human_traj))):
             curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)])
-            print(curr_distance)
+            print("Curr Distance = " + str(curr_distance))
+            if curr_distance > collision_threshold and last_pos is None:
+                execution_traj.append(traj[i])
+            else:                
+                last_pos = i if last_pos is None else last_pos
+                execution_traj.append(traj[last_pos])
 
         raw_input("Ready for Gazebo execution")
-        self.follow_joint_trajectory_client.execute_full_trajectory(traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
+        self.follow_joint_trajectory_client.execute_full_trajectory(execution_traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(execution_traj), full_human_traj)
 
 
     #use openrave's FK module to get robot_joints in cartesian space rather than joint space
