@@ -906,7 +906,7 @@ class TestingFramework:
         add_smoothing_cost(request, 200, 2)
 
         result = self.optimize_problem(request)
-        sub_human_traj = np.array(complete_pred_traj_means).reshape(-1, 11*3)
+        sub_human_traj = np.array(complete_pred_traj_means_expanded).reshape(num_timesteps, -1)
         robot_trajectory = result.GetTraj()
 
         print("Separation Distances for predicted human trajectory: ")
