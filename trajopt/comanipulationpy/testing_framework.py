@@ -331,6 +331,17 @@ class TestingFramework:
         self.body.InitFromBoxes(octomap_array)
 
         self.env.Add(self.body)
+    
+    def get_subsampled_human_from_dict(self, human_traj):
+        order = ['right_shoulder', 'right_elbow', 'right_wrist', 'right_palm', 'neck', 'head', 'torso', 'left_shoulder', 'left_elbow', 'left_wrist', 'left_palm']
+
+        final_trajectory = np.zeros([len(human_traj[order[0]][::10]), len(order)*3])
+        print(np.shape(final_trajectory))
+        for index, joint in enumerate(order):
+            final_trajectory[:, 3*index:3*(index + 1)] = human_traj[joint][::10] ##each timestep needs to be vectorized
+        
+        return final_trajectory
+
 
 
     ####################################################
@@ -372,10 +383,10 @@ class TestingFramework:
         self.follow_joint_trajectory_client.follow_trajectory([traj[0], traj[0]], duration=0.5)
         full_human_traj = create_human_trajectory_tree(human_traj)
         print("Human trajectory = ")
-        print(full_human_traj)
+        print(len(self.get_subsampled_human_from_dict(full_human_traj)))
         print("Robot Trajectory = ")
-        print(traj)
-        print(self.follow_joint_trajectory_client.execute_full_trajectory)
+        print(len(traj))
+
         raw_input("Ready for Gazebo execution")
         self.follow_joint_trajectory_client.execute_full_trajectory(traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
 
