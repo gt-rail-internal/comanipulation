@@ -370,8 +370,13 @@ class TestingFramework:
     def execute_full_trajectory(self, traj, human_traj, obs_traj_len, full_human_traj_len):
         # if self.use_ros and not self.use_jaco:
         self.follow_joint_trajectory_client.follow_trajectory([traj[0], traj[0]], duration=0.5)
-        raw_input("Ready for Gazebo execution")
         full_human_traj = create_human_trajectory_tree(human_traj)
+        print("Human trajectory = ")
+        print(full_human_traj)
+        print("Robot Trajectory = ")
+        print(traj)
+        print(self.follow_joint_trajectory_client.execute_full_trajectory)
+        raw_input("Ready for Gazebo execution")
         self.follow_joint_trajectory_client.execute_full_trajectory(traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
 
 
@@ -585,13 +590,11 @@ class TestingFramework:
         t_start = time.time()
         result = trajoptpy.OptimizeProblem(prob) # do optimization
         t_elapsed = time.time() - t_start
-        print(result)
         print("optimization took %.3f seconds"%t_elapsed)
 
         # from trajoptpy.check_traj import traj_is_safe
         # prob.SetRobotActiveDOFs() # set robot DOFs to DOFs in optimization problem
         # assert traj_is_safe(result.GetTraj(), self.robot) # Check that trajectory is collision free
-
         return result
 
     def get_default_trajectory(self, init_joint, final_joint, num_timesteps):
