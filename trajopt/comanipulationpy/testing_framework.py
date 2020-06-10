@@ -382,10 +382,11 @@ class TestingFramework:
         # if self.use_ros and not self.use_jaco:
         self.follow_joint_trajectory_client.follow_trajectory([traj[0], traj[0]], duration=0.5)
         full_human_traj = create_human_trajectory_tree(human_traj)
-        print("Human trajectory = ")
-        print(len(self.get_subsampled_human_from_dict(full_human_traj)))
-        print("Robot Trajectory = ")
-        print(len(traj))
+        sub_human_traj = self.get_subsampled_human_from_dict(full_human_traj)
+
+        for i in range(min(len(traj), len(sub_human_traj))):
+            curr_distance = self.get_separation_dist(sub_human_traj[i], traj[i])
+            print(curr_distance)
 
         raw_input("Ready for Gazebo execution")
         self.follow_joint_trajectory_client.execute_full_trajectory(traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
