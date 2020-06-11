@@ -39,6 +39,7 @@ import numpy as np
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from std_msgs.msg import String
+import time
 
 from geometry_msgs.msg import Point
 from human_traj_display.srv import ExecuteHumanTraj
@@ -47,12 +48,17 @@ from human_traj_display.srv import ExecuteHumanTraj
 # Send a trajectory to controller
 class FollowTrajectoryClient(object):
 
-    def __init__(self, name, joint_names):
-        self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
-                                                   FollowJointTrajectoryAction)
-        rospy.loginfo("Waiting for %s..." % name)
-        self.client.wait_for_server()
-        rospy.loginfo("Found %s" % name)
+    def __init__(self, name, joint_names, is_action_server=True):
+        self.is_act_srv = is_action_server
+        if is_action_server:
+            self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
+                                                    FollowJointTrajectoryAction)
+            rospy.loginfo("Waiting for %s..." % name)
+            self.client.wait_for_server()
+            rospy.loginfo("Found %s" % name)
+        else:
+            self.client = rospy.Publisher(name, JointTrajectory, queue_size=0)
+        
         self.joint_names = joint_names
 
     def move_to(self, positions, duration=5.0):
@@ -69,8 +75,12 @@ class FollowTrajectoryClient(object):
         follow_goal = FollowJointTrajectoryGoal()
         follow_goal.trajectory = trajectory
         print(follow_goal)
-        self.client.send_goal(follow_goal)
-        self.client.wait_for_result()
+        if self.is_act_srv:
+            self.client.send_goal(follow_goal)
+            self.client.wait_for_result()
+        else:
+            self.client.publish(trajectory)
+            time.sleep(duration)
         print("Done...")
 
     def follow_trajectory(self, points, duration=1.0):
@@ -87,9 +97,13 @@ class FollowTrajectoryClient(object):
         	trajectory.points[-1].time_from_start = rospy.Duration((t + 1) * duration)
     	follow_goal = FollowJointTrajectoryGoal()
     	follow_goal.trajectory = trajectory
-    	self.client.send_goal(follow_goal)
-    	print("sent, waiting...")
-    	self.client.wait_for_result()
+        print("sent, waiting...")
+        if self.is_act_srv:
+            self.client.send_goal(follow_goal)
+            self.client.wait_for_result()
+        else:
+            self.client.publish(trajectory)
+            time.sleep(duration*len(points))
     	print("Done...")
 
     def execute_full_trajectory(self, points, robot_timestep_size, human_timestep_size, obs_steps_human, exec_steps_human, exec_steps_robot, human_trajectory):

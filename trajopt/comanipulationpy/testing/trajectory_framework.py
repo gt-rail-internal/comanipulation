@@ -28,7 +28,13 @@ ROBOTS_DICT = {
     "jaco": RobotInfo(path.join(DATA_FOLDER, "jaco-test.dae"), "test_arm", "j2s7s300_ee_link",
                       ["j2s7s300_ee_link", "j2s7s300_link_6", "j2s7s300_link_4",
                        "j2s7s300_link_7", "j2s7s300_link_5", "j2s7s300_link_3", "j2s7s300_link_2"],
-                      "jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2",
+                      "/j2s7s300/effort_joint_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2",
+                                                     "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6",
+                                                     "j2s7s300_joint_7"]),
+    "jaco-real": RobotInfo(path.join(DATA_FOLDER, "jaco-test.dae"), "test_arm", "j2s7s300_ee_link",
+                      ["j2s7s300_ee_link", "j2s7s300_link_6", "j2s7s300_link_4",
+                       "j2s7s300_link_7", "j2s7s300_link_5", "j2s7s300_link_3", "j2s7s300_link_2"],
+                      "/j2s7s300_driver/trajectory_controller/command", ["j2s7s300_joint_1", "j2s7s300_joint_2",
                                                      "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6",
                                                      "j2s7s300_joint_7"]),
     "franka": RobotInfo(path.join(DATA_FOLDER, "panda_default.dae"), "panda_arm", "panda_hand",
@@ -53,6 +59,7 @@ class TrajectoryFramework:
         self.plot = plot
 
         self.robot_info = ROBOTS_DICT[robot_type]
+        self.is_real = self.robot_type.endswith('real')
         self.scene = Scene(self.robot_info)
     
         self.ros_initialized = False
@@ -65,7 +72,8 @@ class TrajectoryFramework:
         rospy.init_node("comanipulation_testing")
 
         self.scene.follow_joint_trajectory_client = FollowTrajectoryClient(
-            self.robot_info.controller_name, self.robot_info.controller_joints)
+            self.robot_info.controller_name, self.robot_info.controller_joints, 
+            is_action_server=(not self.is_real))
         self.ros_initialized = True
         
 
@@ -141,7 +149,7 @@ class TrajectoryFramework:
             'smoothing': dict(cost=200, type=2)
         }
 
-        if traj_num > 0:
+        if traj_num > 0 and not self.is_real:
             result, _ = self.trajectory_solver.solve_traj_save_plot_exec(init_joint, final_joint, coeffs=coeffs, 
                 object_pos=OBJECT_POS, execute=execute)
         else:

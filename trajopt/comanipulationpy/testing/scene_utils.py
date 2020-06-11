@@ -67,8 +67,7 @@ class Scene:
         print("Executing trajectory!")
         raw_input("Ready to move to initial position")
         # self.follow_joint_trajectory_client.move_to(traj[0], duration=1)
-        self.follow_joint_trajectory_client.follow_trajectory(
-            [traj[0], traj[0]], duration=0.5)
+        self.follow_joint_trajectory_client.move_to(traj[0])
         raw_input("Ready for Gazebo execution?")
         self.follow_joint_trajectory_client.follow_trajectory(traj, duration=0.5)
 
@@ -85,7 +84,7 @@ class Scene:
         """
         # if self.use_ros and not self.use_jaco:
         self.follow_joint_trajectory_client.follow_trajectory(
-            [traj[0], traj[0]], duration=0.5)
+            [traj[0], traj[0]], duration=4)
         raw_input("Ready for Gazebo execution")
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
         self.follow_joint_trajectory_client.execute_full_trajectory(
