@@ -2,3 +2,4 @@ trajopt/build/*
 trajopt/build_trajopt/*
 *.pyc
 *__pycache__*
+*/.vscode/*
