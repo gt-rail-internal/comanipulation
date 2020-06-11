@@ -851,7 +851,7 @@ class TestingFramework:
         return eef_traj
     
 
-    def setup_test_without_ros(self, init_joint, final_joint, traj_num = 303, exec_traj = False):
+    def setup_test_without_ros(self, init_joint, final_joint, traj_num = 303, exec_traj = False, cal_separation_with_pred_human = False):
 
         # Read pose prediction files
         # full_human_poses, obs_human_poses, human_poses_mean, human_poses_var = self.load_all_human_trajectories(traj_num)
@@ -918,10 +918,11 @@ class TestingFramework:
         sub_human_traj = np.array(complete_pred_traj_means_expanded).reshape(num_timesteps, -1)
         robot_trajectory = result.GetTraj()
 
-        print("Separation Distances for predicted human trajectory: ")
-        for i in range(max(len(robot_trajectory), len(sub_human_traj))):
-            curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], robot_trajectory[min(i, len(robot_trajectory) - 1)])
-            print(curr_distance)        
+        if (cal_separation_with_pred_human):
+            print("Separation Distances for predicted human trajectory: ")
+            for i in range(max(len(robot_trajectory), len(sub_human_traj))):
+                curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], robot_trajectory[min(i, len(robot_trajectory) - 1)])
+                print(curr_distance)        
 
 
         if (exec_traj):
