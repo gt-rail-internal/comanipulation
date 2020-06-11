@@ -390,7 +390,6 @@ class TestingFramework:
         last_pos = None
         for i in range(max(len(traj), len(sub_human_traj))):
             curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)])
-            print("Curr Distance = " + str(curr_distance))
             if curr_distance > collision_threshold and last_pos is None:
                 execution_traj.append(traj[i])
             else:                
@@ -915,10 +914,10 @@ class TestingFramework:
         add_smoothing_cost(request, 200, 2)
 
         result = self.optimize_problem(request)
-        sub_human_traj = np.array(complete_pred_traj_means_expanded).reshape(num_timesteps, -1)
-        robot_trajectory = result.GetTraj()
 
         if (cal_separation_with_pred_human):
+            sub_human_traj = np.array(complete_pred_traj_means_expanded).reshape(num_timesteps, -1)
+            robot_trajectory = result.GetTraj()
             print("Separation Distances for predicted human trajectory: ")
             for i in range(max(len(robot_trajectory), len(sub_human_traj))):
                 curr_distance = self.get_separation_dist(sub_human_traj[min(i, len(sub_human_traj) - 1)], robot_trajectory[min(i, len(robot_trajectory) - 1)])
