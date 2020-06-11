@@ -61,7 +61,7 @@
 
   <node name="$(arg kinova_robotName)_joints_controller" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="$(arg kinova_robotName)" 
-    args="effort_joint_trajectory_controller"/>
+    args="effort_joint_trajectory_controller joint_state_controller"/>
 
  <!-- END SECTION: Gazebo -->
 
@@ -76,6 +76,9 @@
   <node name="command_robot_home_pose" pkg="kinova_control" type="move_robot.py"
         respawn="false" output="screen" args="$(arg kinova_robotType)">       
   </node>
+
+  <node type="rviz" name="rviz" pkg="rviz"/>
+  <node pkg="human_traj_display" name="human_traj_display" type="execute_human_traj_server.py" output="screen" />
 
   <!-- END SECTION: Maintenance -->
 
