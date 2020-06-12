@@ -22,7 +22,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 RobotInfo = namedtuple(
     "RobotInfo", "model arm_name eef_link_name all_links controller_name controller_joints")
 
-DATA_FOLDER = "../../data/"
+DATA_FOLDER = "../data/"
 
 ROBOTS_DICT = {
     "jaco": RobotInfo(path.join(DATA_FOLDER, "jaco-test.dae"), "test_arm", "j2s7s300_ee_link",
