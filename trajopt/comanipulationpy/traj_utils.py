@@ -168,3 +168,12 @@ def expand_human_test_traj(human_test_traj, n_human_joints, num_human_obs, robot
         human_test_traj = human_test_traj + last_human_pose
 
     return human_test_traj
+
+def get_subsampled_human_from_dict(human_traj):
+        order = ['right_shoulder', 'right_elbow', 'right_wrist', 'right_palm', 'neck', 'head', 'torso', 'left_shoulder', 'left_elbow', 'left_wrist', 'left_palm']
+
+        final_trajectory = np.zeros([len(human_traj[order[0]][::10]), len(order)*3])
+        for index, joint in enumerate(order):
+            final_trajectory[:, 3*index:3*(index + 1)] = human_traj[joint][::10] ##each timestep needs to be vectorized
+        
+        return final_trajectory

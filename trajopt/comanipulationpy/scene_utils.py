@@ -1,4 +1,5 @@
 import traj_utils
+import metrics
 
 import openravepy
 import numpy as np
@@ -85,10 +86,24 @@ class Scene:
         # if self.use_ros and not self.use_jaco:
         self.follow_joint_trajectory_client.follow_trajectory(
             [traj[0], traj[0]], duration=4)
-        raw_input("Ready for Gazebo execution")
+
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
+        sub_human_traj = traj_utils.get_subsampled_human_from_dict(full_human_traj)
+        execution_traj = []
+        collision_threshold = 0.25
+        last_pos = None
+        for i in range(max(len(traj), len(sub_human_traj))):
+            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)])
+            if curr_distance > collision_threshold and last_pos is None:
+                execution_traj.append(traj[i])
+            else:                
+                last_pos = i if last_pos is None else last_pos
+                execution_traj.append(traj[last_pos])
+        
+        raw_input("Ready for Gazebo execution")
+        
         self.follow_joint_trajectory_client.execute_full_trajectory(
-            traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(traj), full_human_traj)
+            execution_traj, 0.1, 0.01, obs_traj_len, full_human_traj_len - obs_traj_len, len(execution_traj), full_human_traj)
             
 
     # use openrave's FK module to get robot_joints in cartesian space rather than joint space
