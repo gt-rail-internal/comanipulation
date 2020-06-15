@@ -34,7 +34,7 @@ ROBOTS_DICT = {
     "jaco-real": RobotInfo(path.join(DATA_FOLDER, "jaco-test.dae"), "test_arm", "j2s7s300_ee_link",
                       ["j2s7s300_ee_link", "j2s7s300_link_6", "j2s7s300_link_4",
                        "j2s7s300_link_7", "j2s7s300_link_5", "j2s7s300_link_3", "j2s7s300_link_2"],
-                      "/j2s7s300_driver/trajectory_controller/command", ["j2s7s300_joint_1", "j2s7s300_joint_2",
+                      "/jaco_trajectory_controller", ["j2s7s300_joint_1", "j2s7s300_joint_2",
                                                      "j2s7s300_joint_3", "j2s7s300_joint_4", "j2s7s300_joint_5", "j2s7s300_joint_6",
                                                      "j2s7s300_joint_7"]),
     "franka": RobotInfo(path.join(DATA_FOLDER, "panda_default.dae"), "panda_arm", "panda_hand",

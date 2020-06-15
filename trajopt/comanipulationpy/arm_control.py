@@ -49,8 +49,8 @@ from human_traj_display.srv import ExecuteHumanTraj
 class FollowTrajectoryClient(object):
 
     def __init__(self, name, joint_names, is_action_server=True):
-        self.is_act_srv = is_action_server
-        if is_action_server:
+        self.is_act_srv = True #TODO: probably just remove this
+        if self.is_act_srv:
             self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
                                                     FollowJointTrajectoryAction)
             rospy.loginfo("Waiting for %s..." % name)

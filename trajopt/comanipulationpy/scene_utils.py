@@ -84,9 +84,12 @@ class Scene:
         full_human_traj_len: total number of human timesteps
         """
         # if self.use_ros and not self.use_jaco:
-        self.follow_joint_trajectory_client.follow_trajectory(
-            [traj[0], traj[0]], duration=4)
+        # self.follow_joint_trajectory_client.follow_trajectory(
+        #     [traj[0], traj[0]], duration=4)
 
+        raw_input("Ready to move to initial position")
+        self.follow_joint_trajectory_client.move_to(traj[0])
+        raw_input("Ready for Gazebo execution")
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
         sub_human_traj = traj_utils.get_subsampled_human_from_dict(full_human_traj)
         execution_traj = []
