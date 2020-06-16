@@ -190,7 +190,7 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         if vis_t < visibility_threshold:
             num_below_thres += 1
     
-    return num_below_thres / (num_total_timesteps - num_obs_timesteps)
+    return num_below_thres * 1.0 / (num_total_timesteps - num_obs_timesteps)
 
 def compute_legibility_metric(scene, robot_traj):
     """
