@@ -33,7 +33,7 @@ class Scene:
         """
         uses OpenRAVE FK to calculate eef pose from joint angles, then returns only the eef position
 
-        dof_vals: the joint angles of the robot
+        dof_vals: the joint angles of the robot (python list only, no numpy)
         """
         self.robot.SetDOFValues(dof_vals, self.manipulator.GetArmIndices())
         posevec = openravepy.poseFromMatrix(self.eef_link.GetTransform())
