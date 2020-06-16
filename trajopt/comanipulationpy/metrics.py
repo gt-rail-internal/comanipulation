@@ -3,6 +3,8 @@ import scene_utils
 
 import numpy as np
 import math
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
 
 import scene_utils
 
@@ -32,7 +34,7 @@ def get_visibility_angle(scene, head_pos, robot_joints, object_pos):
 
 
 def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05, 
-        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5):
+        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5, plot=False):
     """
     Returns the minimum separation distance between a human and a robot.
 
@@ -49,6 +51,8 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
     robot_joints_pos = scene.performFK(robot_joints)
     robot_joints_pos = np.array(robot_joints_pos)
     robot_joints_pos = np.reshape(robot_joints_pos, 7*3)
+    exp_setup = plt.figure()
+    plotter = exp_setup.add_subplot(111, projection='3d')
 
     distance = float('inf')
 
@@ -59,6 +63,14 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
         # create human_sphere_num spheres equally spaced along each human link
         human_spheres_centers = [human_link_start + i *
                                  human_sphere_sep for i in range(human_sphere_num)]
+        
+        if plot:
+            humanXLine = np.linspace(human_link_start[0], human_link_end[0], 25)
+            humanYLine = np.linspace(human_link_start[1], human_link_end[1], 25)
+            humanZLine = np.linspace(human_link_start[2], human_link_end[2], 25)
+            plotter.plot3D(humanXLine, humanYLine, humanZLine, c='red')
+            for center in human_spheres_centers:
+                plotter.scatter([center[0]], [center[1]], [center[2]], c='y')
 
         for curr_robot_link in ROBOT_LINKS:
             robot_link_start = robot_joints_pos[3 *
@@ -70,13 +82,22 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
             robot_spheres_centers = [robot_link_start + i *
                                      robot_sphere_sep for i in range(robot_sphere_num)]
 
+            if plot:
+                robotXLine = np.linspace(robot_link_start[0], robot_link_end[0], 25)
+                robotYLine = np.linspace(robot_link_start[1], robot_link_end[1], 25)
+                robotZLine = np.linspace(robot_link_start[2], robot_link_end[2], 25)
+                plotter.plot3D(robotXLine, robotYLine, robotZLine, c='blue')
+                for center in robot_spheres_centers:
+                    plotter.scatter([center[0]], [center[1]], [center[2]], c='g')
+
             for human_sphere_center in human_spheres_centers:
                 for robot_sphere_center in robot_spheres_centers:
                     center_dist = calculate_distance_3d(
                         human_sphere_center, robot_sphere_center)
                     curr_distance = center_dist - human_sphere_radius - robot_sphere_radius
                     distance = min(distance, curr_distance)
-
+    if plot:
+        plt.show()
     return distance
 
 

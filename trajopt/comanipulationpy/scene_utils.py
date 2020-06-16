@@ -88,12 +88,13 @@ class Scene:
             [traj[0], traj[0]], duration=4)
 
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
-        sub_human_traj = traj_utils.get_subsampled_human_from_dict(full_human_traj)
+        sub_human_traj = np.array(traj_utils.create_human_plot_traj(human_traj)).reshape((full_human_traj_len, -1))[::10]
+
         execution_traj = []
         collision_threshold = 0.25
         last_pos = None
         for i in range(max(len(traj), len(sub_human_traj))):
-            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)])
+            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=True)
             if curr_distance > collision_threshold and last_pos is None:
                 execution_traj.append(traj[i])
             else:                
