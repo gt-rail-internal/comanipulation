@@ -1,12 +1,9 @@
 import traj_calc
-import scene_utils
 
 import numpy as np
 import math
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
-
-import scene_utils
 
 import traj_utils 
 
@@ -40,7 +37,7 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
 
     human_pos: human position from vision system - one timestep, vectorized
     the order of human_pos joints is right_shoulder + right_elbow + right_wrist + right_palm + neck + head + torso + left_shoulder + left_elbow + left_wrist + left_palm
-    robot_joint_pos: time-sampled JOINT space trajectory  - one timestep - vectorized
+    robot_joints: time-sampled JOINT space trajectory  - one timestep - vectorized
     human_sphere_radius: the radius of the spheres sampled on the human
     human_sphere_num: number of spheres per link for the human
     robot_sphere_radius: the radius of the spheres sampled on the robot
@@ -214,7 +211,7 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         if vis_t < visibility_threshold:
             num_below_thres += 1
     
-    return num_below_thres / (num_total_timesteps - num_obs_timesteps)
+    return num_below_thres * 1.0 / (num_total_timesteps - num_obs_timesteps)
 
 def compute_legibility_metric(scene, robot_traj):
     """
@@ -264,8 +261,8 @@ def compute_nominal_traj_metric(scene, robot_traj, nominal_traj):
     deviation = 0
     
     for i in range(num_timesteps):
-        p_eef_t = scene.get_eef_position(robot_traj[i])
-        p_nom_t = scene.get_eef_position(nominal_traj[i])
+        p_eef_t = scene.get_eef_position(list(robot_traj[i]))
+        p_nom_t = scene.get_eef_position(list(nominal_traj[i]))
 
         deviation += np.linalg.norm(p_eef_t - p_nom_t)
 

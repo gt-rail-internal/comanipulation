@@ -108,7 +108,7 @@ class TrajectoryFramework:
 
         full_complete_test_traj = traj_utils.create_human_plot_traj(
             self.trajectory_solver.full_rightarm_test_traj)
-        default_traj = self.trajectory_solver.get_default_traj(init_joint, final_joint, self.trajectory_solver.n_pred_timesteps)
+        default_traj, _ = self.trajectory_solver.get_default_traj(init_joint, final_joint, self.trajectory_solver.n_pred_timesteps)
         return metrics.evaluate_metrics(self.scene, result.GetTraj(), 
             full_complete_test_traj, 
             len(self.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
