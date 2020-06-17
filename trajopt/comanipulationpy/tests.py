@@ -114,7 +114,7 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            'legibility': 1000.0,
+            'legibility': 10000000.0,
             'regularize': [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
         }
