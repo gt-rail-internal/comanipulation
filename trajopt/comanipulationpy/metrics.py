@@ -14,6 +14,12 @@ METRIC_ORDER = ["Distance Metric", "Visibility Metric",
                 "Legibility Metric", "Nominal Trajectory Metric"]
 
 def metric_print_helper(metrics, heading):
+    """
+    Helper method for print_metrics. Prints in order specified by Metric order
+
+    Metrics : Array of 4 floats signifying score on each metric
+    Heading: The Heading/Label for each score. Specified in METRIC_ORDER
+    """
     print("\n")
     print(heading)
     for index, metric in enumerate(metrics):

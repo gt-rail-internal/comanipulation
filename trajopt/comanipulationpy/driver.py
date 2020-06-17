@@ -12,15 +12,16 @@ if __name__ == "__main__":
     #jaco
     # joint_start = [3.941421366763722, 2.840465567025116, 0.0016481772134505363, 0.7576862412004652, -1.6470106708707843, 4.495901148004366, -1.2516118096169921]
     # joint_target = [4.871800476914653, 1.895875884203746, 4.728695515739245, 1.2668175273349631, 4.713923493804794, 4.641769937759059, 5.034508434241916]
-    traj_num = 303
+    traj_num = 999
     enable_estop = True
     resume_safely = False
     execute_comanipulation = True
     execute_baseline = False
     robot = 'iiwa'
+    collision_threshold = 0.25
     ###############################################
 
-    framework = TrajectoryFramework(robot, '', enable_estop=enable_estop, resume_safely=resume_safely)
+    framework = TrajectoryFramework(robot, '', enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
     framework.scene.robot.SetDOFValues(joint_start, framework.scene.manipulator.GetArmIndices())
 
     comanipulationMetrics = framework.setup_test(joint_start, joint_target, traj_num=traj_num, execute=execute_comanipulation)
