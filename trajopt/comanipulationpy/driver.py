@@ -16,7 +16,7 @@ if __name__ == "__main__":
     framework = TrajectoryFramework('iiwa', '')
     framework.scene.robot.SetDOFValues(joint_start, framework.scene.manipulator.GetArmIndices())
 
-    comanipulationMetrics = framework.setup_test(joint_start, joint_target, traj_num=traj_num, execute=True)
+    comanipulationMetrics = framework.setup_test(joint_start, joint_target, traj_num=traj_num, execute=False)
     baselineTest = Test('iiwa',joint_start, joint_target, traj_num=traj_num, execute=False)
     baselineMetrics = baselineTest.run_all_baselines()
     print_metrics(comanipulationMetrics, baselineMetrics)

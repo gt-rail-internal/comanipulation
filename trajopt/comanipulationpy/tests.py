@@ -15,7 +15,7 @@ class Test:
         if execute:
             self.framework.setup_ros()
 
-    def distance_test(self, plot=''):
+    def distance_visibility_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the separation distance
@@ -28,7 +28,8 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "distance": [1000.0 for _ in range(num_timesteps)],
+            "distance": [1000000.0 for _ in range(num_timesteps)],
+            'visibility': [10.0 for _ in range(num_timesteps)],
             # "regularization": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2),
@@ -113,7 +114,7 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            'legibility': 100.0,
+            'legibility': 1000.0,
             'regularize': [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
         }
@@ -193,19 +194,16 @@ class Test:
 
     def run_all_baselines(self):
         metrics = []
-        print("Distance Baseline: ")
-        metrics.append(self.distance_test())
-        
-        print("Velocity Baseline: ")
-        metrics.append(self.velocity_test())
-
-        # print("Visibility Baseline")
-        # metrics.append(self.visibility_test())
+        print("Distance + Visibility Baseline: ")
+        metrics.append(self.distance_visibility_test())
 
         print("Legibility Baseline: ")
         metrics.append(self.legibility_test())
 
         print("Nominal Trajectory Baseline: ")
         metrics.append(self.nominal_trajectory_test())
+
+        print("Speed Control Baseline")
+        metrics.append(self.speed_control_baseline_test())
 
         return metrics

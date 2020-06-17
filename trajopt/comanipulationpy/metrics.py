@@ -22,10 +22,11 @@ def metric_print_helper(metrics, heading):
 
 def print_metrics(comanipulationMetrics, baselineMetrics):
     metric_print_helper(comanipulationMetrics, "Our Metrics")
-    metric_print_helper(baselineMetrics[0], "Distance Baseline")
-    metric_print_helper(baselineMetrics[1], "Velocity Baseline")
-    metric_print_helper(baselineMetrics[2], "Legibility Baseline")
-    metric_print_helper(baselineMetrics[3], "Nominal Trajectory Baseline")
+    metric_print_helper(baselineMetrics[0], "Distance + Visibility Baseline")
+    metric_print_helper(baselineMetrics[1], "Legibility Baseline")
+    metric_print_helper(baselineMetrics[2], "Nominal Trajectory Baseline")
+    metric_print_helper(baselineMetrics[3], "Speed Control Baseline")
+
 
 def calculate_distance_3d(p1, p2):
     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2)
