@@ -7,9 +7,6 @@ import metrics
 import plots
 import json
 import trajoptpy
-import contextlib
-import sys
-import os
 
 from scipy.interpolate import CubicSpline
 
@@ -22,7 +19,7 @@ class TrajectoryPlanner:
         self.n_human_joints = n_human_joints
         self.n_robot_joints = n_robot_joints
 
-    def optimize_problem(self, request, verbose=False):
+    def optimize_problem(self, request):
         """
         Returns the result of running trajopt on a problem specified in `request`
 
