@@ -2,14 +2,20 @@ from trajectory_framework import TrajectoryFramework
 import traj_calc
 import scene_utils
 import metrics
+import traj_utils
 
 class Test:
-    def __init__(self, robot_type, plot, traj_num=303):
+    def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False):
         self.robot_type, self.plot = robot_type, plot
         self.framework = TrajectoryFramework(self.robot_type, self.plot)
         self.framework.trajectory_solver.load_traj_file(traj_num)
+        self.OBJECT_POS = [0, 0.2, 0.83]
+        self.init_joint, self.final_joint = init_joint, final_joint
+        self.execute = execute
+        if execute:
+            self.framework.setup_ros()
 
-    def distance_test(self, init_joint, final_joint, plot='', execute=True):
+    def distance_visibility_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the separation distance
@@ -22,19 +28,26 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "distance": [1000.0 for _ in range(num_timesteps)],
+            "distance": [1000000.0 for _ in range(num_timesteps)],
+            'visibility': [10.0 for _ in range(num_timesteps)],
             # "regularization": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2),
             "nominal": 0.5
         }
 
-        eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(init_joint, 
-                final_joint, coeffs=coeffs, plot=plot, execute=execute, 
+        result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
                 save='trajectories/distance.txt')
-        return eef_traj
+        
+        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
+            full_complete_test_traj, 
+            len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
+            self.OBJECT_POS, default_traj)
 
-    def velocity_test(self, init_joint, final_joint, plot='', execute=True):
+    def velocity_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the velocity
@@ -48,13 +61,18 @@ class Test:
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {'velocity': [50000.0 for _ in range(num_timesteps)]}
 
-        eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(init_joint, 
-                final_joint, coeffs=coeffs, plot=plot, execute=execute, 
+        result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
                 save='trajectories/velocity.txt')
+        
+        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
+            full_complete_test_traj, 
+            len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
+            self.OBJECT_POS, default_traj)
 
-        return eef_traj
-
-    def visibility_test(self, init_joint, final_joint, plot='', execute=True):
+    def visibility_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the visibility
@@ -72,11 +90,18 @@ class Test:
             'nominal': 10,
             'smoothing': dict(cost=10, type=2),
         }
-        eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(init_joint, 
-            final_joint, coeffs=coeffs, plot=plot, execute=execute)
-        return eef_traj
+        
+        result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute)
+        
+        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
+            full_complete_test_traj, 
+            len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
+            self.OBJECT_POS, default_traj)
 
-    def legibility_test(self, init_joint, final_joint, plot='', execute=True):
+    def legibility_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the legibility
@@ -89,16 +114,23 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            'legibility': 100.0,
+            'legibility': 10000000.0,
             'regularize': [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
         }
-        eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(
-            init_joint, final_joint, coeffs=coeffs, plot=plot, 
-            save='trajectories/legibility.txt', execute=execute)
-        return eef_traj
 
-    def nominal_trajectory_test(self, init_joint, final_joint, plot='', execute=True):
+        result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
+                save='trajectories/legibility.txt')
+        
+        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
+            full_complete_test_traj, 
+            len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
+            self.OBJECT_POS, default_traj)
+
+    def nominal_trajectory_test(self, plot=''):
         """
         Computes, executes, plots, and saves an optimal trajectory from init_joint to
         final_joint. Uses weights that exaggerate the importance of the nominal trajectory
@@ -110,13 +142,19 @@ class Test:
         traj_num: the trajectory number to examine
         """
         coeffs = {'nominal': 5}
-        eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(
-            init_joint, final_joint, coeffs=coeffs, plot=plot, save='trajectories/nominal.txt', execute=execute)
+        result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
+                save='trajectories/nominal.txt')
+        
+        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
+            full_complete_test_traj, 
+            len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
+            self.OBJECT_POS, default_traj)
 
-        return eef_traj
 
-
-    def speed_control_baseline_test(self, init_joint, final_joint, execute=False):
+    def speed_control_baseline_test(self):
         """
         Generates a default trajectory, then calculates the speed-adapted version. This version is slowed
         by a factor of 10, then potentially executed and its metrics returned.
@@ -128,7 +166,7 @@ class Test:
         object_pos = [0, 0.2, 0.83]
 
         default_traj, default_eef_traj = self.framework.trajectory_solver.get_default_traj(
-                init_joint, final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+                self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
         
         human_traj = self.framework.trajectory_solver.complete_pred_traj_means_expanded
         adapted_robot_traj_fast = self.framework.trajectory_solver.calculate_adaptive_trajectory(default_traj, human_traj)
@@ -148,9 +186,24 @@ class Test:
 
         rightarm_traj = self.framework.trajectory_solver.full_rightarm_test_traj
         num_obs_timesteps = len(self.framework.trajectory_solver.obs_rightarm_test_traj)/12
-        if (execute):
+        if (self.execute):
             num_human_timesteps = len(rightarm_traj)/12
             self.framework.scene.execute_full_trajectory(adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, num_human_timesteps)
 
         return metrics.evaluate_metrics(self.framework.scene, adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, object_pos, default_traj)
 
+    def run_all_baselines(self):
+        metrics = []
+        print("Distance + Visibility Baseline: ")
+        metrics.append(self.distance_visibility_test())
+
+        print("Legibility Baseline: ")
+        metrics.append(self.legibility_test())
+
+        print("Nominal Trajectory Baseline: ")
+        metrics.append(self.nominal_trajectory_test())
+
+        print("Speed Control Baseline")
+        metrics.append(self.speed_control_baseline_test())
+
+        return metrics

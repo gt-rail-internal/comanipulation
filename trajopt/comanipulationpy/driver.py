@@ -1,4 +1,7 @@
 from trajectory_framework import TrajectoryFramework
+from tests import Test
+from metrics import print_metrics
+    
 
 if __name__ == "__main__":
     #iiwa
@@ -8,8 +11,12 @@ if __name__ == "__main__":
     #jaco
     # joint_start = [3.941421366763722, 2.840465567025116, 0.0016481772134505363, 0.7576862412004652, -1.6470106708707843, 4.495901148004366, -1.2516118096169921]
     # joint_target = [4.871800476914653, 1.895875884203746, 4.728695515739245, 1.2668175273349631, 4.713923493804794, 4.641769937759059, 5.034508434241916]
-
+    
+    traj_num = 303
     framework = TrajectoryFramework('iiwa', '')
     framework.scene.robot.SetDOFValues(joint_start, framework.scene.manipulator.GetArmIndices())
 
-    framework.setup_test(joint_start, joint_target, traj_num=303, execute=True)
+    comanipulationMetrics = framework.setup_test(joint_start, joint_target, traj_num=traj_num, execute=False)
+    baselineTest = Test('iiwa',joint_start, joint_target, traj_num=traj_num, execute=False)
+    baselineMetrics = baselineTest.run_all_baselines()
+    print_metrics(comanipulationMetrics, baselineMetrics)

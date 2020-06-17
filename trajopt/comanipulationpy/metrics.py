@@ -2,12 +2,30 @@ import traj_calc
 
 import numpy as np
 import math
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
 
 import traj_utils 
 
 HUMAN_LINKS = np.array([[0, 1], [1, 2], [2, 3], [0, 4], [4, 5],
                         [4, 6], [4, 7], [7, 8], [8, 9], [9, 10]])
 ROBOT_LINKS = np.array([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
+METRIC_ORDER = ["Distance Metric", "Visibility Metric",
+                "Legibility Metric", "Nominal Trajectory Metric"]
+
+def metric_print_helper(metrics, heading):
+    print("\n")
+    print(heading)
+    for index, metric in enumerate(metrics):
+        print(METRIC_ORDER[index] + ": " + str(metric))
+    print("\n")
+
+def print_metrics(comanipulationMetrics, baselineMetrics):
+    metric_print_helper(comanipulationMetrics, "Our Metrics")
+    metric_print_helper(baselineMetrics[0], "Distance + Visibility Baseline")
+    metric_print_helper(baselineMetrics[1], "Legibility Baseline")
+    metric_print_helper(baselineMetrics[2], "Nominal Trajectory Baseline")
+    metric_print_helper(baselineMetrics[3], "Speed Control Baseline")
 
 
 def calculate_distance_3d(p1, p2):
@@ -29,7 +47,7 @@ def get_visibility_angle(scene, head_pos, robot_joints, object_pos):
 
 
 def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05, 
-        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5):
+        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5, plot=False):
     """
     Returns the minimum separation distance between a human and a robot.
 
@@ -47,6 +65,10 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
     robot_joints_pos = np.array(robot_joints_pos)
     robot_joints_pos = np.reshape(robot_joints_pos, 7*3)
 
+    if plot:
+        exp_setup = plt.figure()
+        plotter = exp_setup.add_subplot(111, projection='3d')
+
     distance = float('inf')
 
     for curr_human_link in HUMAN_LINKS:
@@ -56,6 +78,14 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
         # create human_sphere_num spheres equally spaced along each human link
         human_spheres_centers = [human_link_start + i *
                                  human_sphere_sep for i in range(human_sphere_num)]
+        
+        if plot:
+            humanXLine = np.linspace(human_link_start[0], human_link_end[0], 25)
+            humanYLine = np.linspace(human_link_start[1], human_link_end[1], 25)
+            humanZLine = np.linspace(human_link_start[2], human_link_end[2], 25)
+            plotter.plot3D(humanXLine, humanYLine, humanZLine, c='red')
+            for center in human_spheres_centers:
+                plotter.scatter([center[0]], [center[1]], [center[2]], c='y')
 
         for curr_robot_link in ROBOT_LINKS:
             robot_link_start = robot_joints_pos[3 *
@@ -67,13 +97,22 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
             robot_spheres_centers = [robot_link_start + i *
                                      robot_sphere_sep for i in range(robot_sphere_num)]
 
+            if plot:
+                robotXLine = np.linspace(robot_link_start[0], robot_link_end[0], 25)
+                robotYLine = np.linspace(robot_link_start[1], robot_link_end[1], 25)
+                robotZLine = np.linspace(robot_link_start[2], robot_link_end[2], 25)
+                plotter.plot3D(robotXLine, robotYLine, robotZLine, c='blue')
+                for center in robot_spheres_centers:
+                    plotter.scatter([center[0]], [center[1]], [center[2]], c='g')
+
             for human_sphere_center in human_spheres_centers:
                 for robot_sphere_center in robot_spheres_centers:
                     center_dist = calculate_distance_3d(
                         human_sphere_center, robot_sphere_center)
                     curr_distance = center_dist - human_sphere_radius - robot_sphere_radius
                     distance = min(distance, curr_distance)
-
+    if plot:
+        plt.show()
     return distance
 
 
@@ -115,11 +154,6 @@ def evaluate_metrics(scene, robot_traj, human_traj, num_obs_timesteps, object_po
         full_head_test_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj, object_pos)
     legibility_metric = compute_legibility_metric(scene, robot_traj)
     nominal_traj_metric = compute_nominal_traj_metric(scene, robot_traj, nominal_traj)
-
-    print("Distance metric : ", distance_metric)
-    print("Visibility metric : ", visibility_metric)
-    print("Legibility metric : ", legibility_metric)
-    print("Nominal traj metric : ", nominal_traj_metric)
 
     metrics = [distance_metric, visibility_metric,
                 legibility_metric, nominal_traj_metric]

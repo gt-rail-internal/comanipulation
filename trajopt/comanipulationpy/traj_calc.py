@@ -201,8 +201,6 @@ class TrajectoryPlanner:
         done = False
         human_timestep = 0
         while not done:
-            print("Curr Human Timesteps = ", human_timestep)
-            print("Curr Robot Timesteps = ", robot_timestep)
             new_robot_joints = traj_interpolation(robot_timestep).tolist()
             new_exec_traj.append(new_robot_joints)
 
