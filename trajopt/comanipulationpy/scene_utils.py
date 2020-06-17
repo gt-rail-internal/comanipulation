@@ -79,10 +79,10 @@ class Scene:
         for i in range(max(len(traj), len(sub_human_traj))):
             curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=False)
             if curr_distance > collision_threshold and last_pos is None:
-                execution_traj.append(traj[i])
+                execution_traj.append(traj[min(i, len(traj) - 1)])
             else:                
                 last_pos = i if last_pos is None else last_pos
-                execution_traj.append(traj[last_pos])
+                execution_traj.append(traj[min(last_pos, len(traj) - 1)])
         return execution_traj
 
     def estop_traj_with_resumption(self, robot_traj, human_traj, full_human_traj_len, collision_threshold):
