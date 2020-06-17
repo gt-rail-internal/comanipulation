@@ -5,9 +5,9 @@ import metrics
 import traj_utils
 
 class Test:
-    def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False):
+    def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False, enable_estop=False, resume_safely=False):
         self.robot_type, self.plot = robot_type, plot
-        self.framework = TrajectoryFramework(self.robot_type, self.plot)
+        self.framework = TrajectoryFramework(self.robot_type, self.plot, enable_estop=enable_estop, resume_safely=resume_safely)
         self.framework.trajectory_solver.load_traj_file(traj_num)
         self.OBJECT_POS = [0, 0.2, 0.83]
         self.init_joint, self.final_joint = init_joint, final_joint
