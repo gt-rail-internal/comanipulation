@@ -10,7 +10,22 @@ import traj_utils
 HUMAN_LINKS = np.array([[0, 1], [1, 2], [2, 3], [0, 4], [4, 5],
                         [4, 6], [4, 7], [7, 8], [8, 9], [9, 10]])
 ROBOT_LINKS = np.array([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]])
+METRIC_ORDER = ["Distance Metric", "Visibility Metric",
+                "Legibility Metric", "Nominal Trajectory Metric"]
 
+def metric_print_helper(metrics, heading):
+    print("\n")
+    print(heading)
+    for index, metric in enumerate(metrics):
+        print(METRIC_ORDER[index] + ": " + str(metric))
+    print("\n")
+
+def print_metrics(comanipulationMetrics, baselineMetrics):
+    metric_print_helper(comanipulationMetrics, "Our Metrics")
+    metric_print_helper(baselineMetrics[0], "Distance Baseline")
+    metric_print_helper(baselineMetrics[1], "Velocity Baseline")
+    metric_print_helper(baselineMetrics[2], "Legibility Baseline")
+    metric_print_helper(baselineMetrics[3], "Nominal Trajectory Baseline")
 
 def calculate_distance_3d(p1, p2):
     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2)
@@ -48,8 +63,10 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
     robot_joints_pos = scene.performFK(robot_joints)
     robot_joints_pos = np.array(robot_joints_pos)
     robot_joints_pos = np.reshape(robot_joints_pos, 7*3)
-    exp_setup = plt.figure()
-    plotter = exp_setup.add_subplot(111, projection='3d')
+
+    if plot:
+        exp_setup = plt.figure()
+        plotter = exp_setup.add_subplot(111, projection='3d')
 
     distance = float('inf')
 
@@ -136,11 +153,6 @@ def evaluate_metrics(scene, robot_traj, human_traj, num_obs_timesteps, object_po
         full_head_test_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj, object_pos)
     legibility_metric = compute_legibility_metric(scene, robot_traj)
     nominal_traj_metric = compute_nominal_traj_metric(scene, robot_traj, nominal_traj)
-
-    print("Distance metric : ", distance_metric)
-    print("Visibility metric : ", visibility_metric)
-    print("Legibility metric : ", legibility_metric)
-    print("Nominal traj metric : ", nominal_traj_metric)
 
     metrics = [distance_metric, visibility_metric,
                 legibility_metric, nominal_traj_metric]

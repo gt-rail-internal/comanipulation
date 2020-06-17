@@ -94,7 +94,7 @@ class Scene:
         collision_threshold = 0.25
         last_pos = None
         for i in range(max(len(traj), len(sub_human_traj))):
-            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=True)
+            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=False)
             if curr_distance > collision_threshold and last_pos is None:
                 execution_traj.append(traj[i])
             else:                
