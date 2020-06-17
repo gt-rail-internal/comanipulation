@@ -14,10 +14,16 @@ METRIC_ORDER = ["Distance Metric", "Visibility Metric",
                 "Legibility Metric", "Nominal Trajectory Metric"]
 
 def metric_print_helper(metrics, heading):
+    """
+    Helper method for print_metrics. Prints in order specified by Metric order
+
+    Metrics : 2D Array of 4 X Number of Trajectorys floats signifying score on each metric
+    Heading: The Heading/Label for each score. Specified in METRIC_ORDER
+    """
     print("\n")
     print(heading)
     for index, metric in enumerate(metrics):
-        print(METRIC_ORDER[index] + ": " + str(metric))
+        print(METRIC_ORDER[index] + ": " + str(np.mean(metric)) + " +/- " + str(np.std(metric)))
     print("\n")
 
 def print_metrics(comanipulationMetrics, baselineMetrics):

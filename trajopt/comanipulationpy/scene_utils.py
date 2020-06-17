@@ -72,8 +72,41 @@ class Scene:
         raw_input("Ready for Gazebo execution?")
         self.follow_joint_trajectory_client.follow_trajectory(traj, duration=0.5)
 
+    def estop_traj_without_resumption(self, traj, human_traj, full_human_traj_len, collision_threshold):
+        sub_human_traj = np.array(traj_utils.create_human_plot_traj(human_traj)).reshape((full_human_traj_len, -1))[::10]
+        execution_traj = []
+        last_pos = None
+        for i in range(max(len(traj), len(sub_human_traj))):
+            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=False)
+            if curr_distance > collision_threshold and last_pos is None:
+                execution_traj.append(traj[min(i, len(traj) - 1)])
+            else:                
+                last_pos = i if last_pos is None else last_pos
+                execution_traj.append(traj[min(last_pos, len(traj) - 1)])
+        return execution_traj
 
-    def execute_full_trajectory(self, traj, human_traj, obs_traj_len, full_human_traj_len):
+    def estop_traj_with_resumption(self, robot_traj, human_traj, full_human_traj_len, collision_threshold):
+        sub_human_traj = np.array(traj_utils.create_human_plot_traj(human_traj)).reshape((full_human_traj_len, -1))[::10]
+        execution_traj = []
+        robot_timestep = 0
+        human_timestep = 0
+        while robot_timestep < len(robot_traj) and human_timestep < len(sub_human_traj):
+            curr_distance = metrics.get_separation_dist(self, sub_human_traj[human_timestep], robot_traj[robot_timestep], plot=False)
+            if curr_distance > collision_threshold:
+                execution_traj.append(robot_traj[robot_timestep])
+                robot_timestep += 1
+            human_timestep += 1
+        
+        if robot_timestep < len(robot_traj):
+            while robot_timestep < len(robot_traj) and \
+                    metrics.get_separation_dist(self, sub_human_traj[-1], robot_traj[robot_timestep], plot=False) > collision_threshold:
+                execution_traj.append(robot_traj[robot_timestep])
+                robot_timestep += 1
+        
+        return execution_traj
+
+
+    def execute_full_trajectory(self, traj, human_traj, obs_traj_len, full_human_traj_len, enable_estop=False, resume_safely=False, collision_threshold = 0.25):
         """
         Moves the robot to the starting point of a joint space trajectory, then dispatches both 
         a human trajectory and a robot trajectory via ros
@@ -88,18 +121,13 @@ class Scene:
             [traj[0], traj[0]], duration=4)
 
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
-        sub_human_traj = np.array(traj_utils.create_human_plot_traj(human_traj)).reshape((full_human_traj_len, -1))[::10]
-
-        execution_traj = []
-        collision_threshold = 0.25
-        last_pos = None
-        for i in range(max(len(traj), len(sub_human_traj))):
-            curr_distance = metrics.get_separation_dist(self, sub_human_traj[min(i, len(sub_human_traj) - 1)], traj[min(i, len(traj) - 1)], plot=False)
-            if curr_distance > collision_threshold and last_pos is None:
-                execution_traj.append(traj[i])
-            else:                
-                last_pos = i if last_pos is None else last_pos
-                execution_traj.append(traj[last_pos])
+        if enable_estop:
+            if resume_safely:
+                execution_traj = self.estop_traj_with_resumption(traj, human_traj, full_human_traj_len, collision_threshold)
+            else:
+                execution_traj = self.estop_traj_without_resumption(traj, human_traj, full_human_traj_len, collision_threshold)
+        else:
+            execution_traj = traj
         
         raw_input("Ready for Gazebo execution")
         

@@ -90,7 +90,7 @@ class TrajectoryPlanner:
             self.complete_pred_traj_means_expanded) / (self.n_human_joints * 3)
 
     def solve_traj_save_plot_exec(self, init_joint, final_joint, coeffs={}, object_pos=[0, 0.2, 0.83],
-                plot='', execute=False, save=''):
+                plot='', execute=False, save='', enable_estop=False, resume_safely=False, collision_threshold=0.25):
         """
         NOTE: THIS IS ONLY COMPATIBLE WITH TRAJECTORIES THAT HAVE BEEN LOADED IN WITH load_traj_file
         A convenience function, which solves a trajectory and then optionally executes, plots, and saves it.
@@ -106,7 +106,7 @@ class TrajectoryPlanner:
         if execute:
             # TODO: this method for timestep calculation should leverage class-level n_joint variables
             self.scene.execute_full_trajectory(result.GetTraj(), self.full_rightarm_test_traj, len(
-                self.obs_rightarm_test_traj) / 12, len(self.full_rightarm_test_traj) / 12)
+                self.obs_rightarm_test_traj) / 12, len(self.full_rightarm_test_traj) / 12, enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
         if plot != '':
             full_complete_test_traj = traj_utils.create_human_plot_traj(
                 self.full_rightarm_test_traj)
