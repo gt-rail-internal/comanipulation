@@ -61,7 +61,7 @@ class FollowTrajectoryClient(object):
         
         self.joint_names = joint_names
 
-    def move_to(self, positions, duration=5.0):
+    def move_to(self, positions, duration=10.0):
         if len(self.joint_names) != len(positions):
             print("Invalid trajectory position")
             return False
