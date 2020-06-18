@@ -122,7 +122,6 @@ class Scene:
 
         raw_input("Ready to move to initial position")
         self.follow_joint_trajectory_client.move_to(traj[0])
-        raw_input("Ready for Gazebo execution")
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
         if enable_estop:
             if resume_safely:
