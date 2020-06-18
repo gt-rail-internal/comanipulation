@@ -4,6 +4,7 @@ import numpy as np
 import math
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import traj_utils 
 
@@ -25,6 +26,19 @@ def metric_print_helper(metrics, heading):
     for index, metric in enumerate(metrics):
         print(METRIC_ORDER[index] + ": " + str(np.mean(metric)) + " +/- " + str(np.std(metric)))
     print("\n")
+
+def metrics_to_csv(test_case, our_metrics, baseline):
+    """
+    Helper method to output the metrics to a csv for easy interpretation
+
+    our_metrics: Scores of our metrics
+    baseline: Scores of the baselines
+    """
+    file_name = '../human_prob_models/scripts/csvFiles/TestingResults.csv'
+    # cols = df.columns[1:]
+    data = [test_case, np.mean(our_metrics[:,0]), np.mean(our_metrics[:,2]), np.mean(our_metrics[:,1]), np.mean(our_metrics[:,3]), np.mean(baseline_metrics[:,0,0]), np.mean(baseline_metrics[:,0,2]), np.mean(baseline_metrics[:,0,1]), np.mean(baseline_metrics[:,0,3]), np.mean(baseline_metrics[:,1,0]), np.mean(baseline_metrics[:,1,2]), np.mean(baseline_metrics[:,1,1]), np.mean(baseline_metrics[:,1,3]), np.mean(baseline_metrics[:,2,0]), np.mean(baseline_metrics[:,2,2]), np.mean(baseline_metrics[:,2,1]), np.mean(baseline_metrics[:,2,3])]
+    df = pd.DataFrame([data])
+    df.to_csv(file_name, mode='a', header=False, index=False)
 
 def print_metrics(comanipulationMetrics, baselineMetrics):
     metric_print_helper(comanipulationMetrics, "Our Metrics")
