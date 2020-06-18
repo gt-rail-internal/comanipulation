@@ -1,5 +1,6 @@
 trajopt/build/*
 trajopt/build_trajopt/*
+trajopt/comanipulationpy/trajectories/*
 *.pyc
 *__pycache__*
 */.vscode/*
