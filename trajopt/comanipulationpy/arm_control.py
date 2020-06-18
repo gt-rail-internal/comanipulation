@@ -49,19 +49,15 @@ from human_traj_display.srv import ExecuteHumanTraj
 class FollowTrajectoryClient(object):
 
     def __init__(self, name, joint_names, is_action_server=True):
-        self.is_act_srv = is_action_server
-        if is_action_server:
-            self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
-                                                    FollowJointTrajectoryAction)
-            rospy.loginfo("Waiting for %s..." % name)
-            self.client.wait_for_server()
-            rospy.loginfo("Found %s" % name)
-        else:
-            self.client = rospy.Publisher(name, JointTrajectory, queue_size=0)
+        self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
+                                                FollowJointTrajectoryAction)
+        rospy.loginfo("Waiting for %s..." % name)
+        self.client.wait_for_server()
+        rospy.loginfo("Found %s" % name)
         
         self.joint_names = joint_names
 
-    def move_to(self, positions, duration=5.0):
+    def move_to(self, positions, duration=10.0):
         if len(self.joint_names) != len(positions):
             print("Invalid trajectory position")
             return False
@@ -75,12 +71,8 @@ class FollowTrajectoryClient(object):
         follow_goal = FollowJointTrajectoryGoal()
         follow_goal.trajectory = trajectory
         print(follow_goal)
-        if self.is_act_srv:
-            self.client.send_goal(follow_goal)
-            self.client.wait_for_result()
-        else:
-            self.client.publish(trajectory)
-            time.sleep(duration)
+        self.client.send_goal(follow_goal)
+        self.client.wait_for_result()
         print("Done...")
 
     def follow_trajectory(self, points, duration=1.0):
@@ -98,12 +90,8 @@ class FollowTrajectoryClient(object):
     	follow_goal = FollowJointTrajectoryGoal()
     	follow_goal.trajectory = trajectory
         print("sent, waiting...")
-        if self.is_act_srv:
-            self.client.send_goal(follow_goal)
-            self.client.wait_for_result()
-        else:
-            self.client.publish(trajectory)
-            time.sleep(duration*len(points))
+        self.client.send_goal(follow_goal)
+        self.client.wait_for_result()
     	print("Done...")
 
     def execute_full_trajectory(self, points, robot_timestep_size, human_timestep_size, obs_steps_human, exec_steps_human, exec_steps_robot, human_trajectory):

@@ -32,4 +32,7 @@
   <!-- Robot model -->
   <include file="$(find conimbus_description)/launch/conimbus_description.launch" />
 
+  <!-- RViz -->
+  <node type="rviz" name="rviz" pkg="rviz"/>
+  <node pkg="human_traj_display" name="human_traj_display" type="execute_human_traj_server.py" output="screen" />
 </launch>

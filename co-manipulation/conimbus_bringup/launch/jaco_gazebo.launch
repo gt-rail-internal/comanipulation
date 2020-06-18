@@ -47,6 +47,7 @@
   <!-- For the 7DOF -->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" if="$(arg is7dof)"
     args="-urdf -model $(arg kinova_robotName) -param robot_description
+        -x -0.5 -y 0.2 -z 0.8
         -J $(arg kinova_robotType)_joint_1 0.0
         -J $(arg kinova_robotType)_joint_2 2.9
         -J $(arg kinova_robotType)_joint_3 0.0
@@ -72,13 +73,22 @@
     <remap from="/joint_states" to="/$(arg kinova_robotName)/joint_states"/>    
   </node>
 
+  <!-- set robot initial pose -->
+  <node name="robot_init_pose_publisher" pkg="tf" type="static_transform_publisher"
+    args="-0.5 0.2 0.8 0 0 0 root j2s7s300_link_base 100"/>
 
   <node name="command_robot_home_pose" pkg="kinova_control" type="move_robot.py"
         respawn="false" output="screen" args="$(arg kinova_robotType)">       
   </node>
 
-  <node type="rviz" name="rviz" pkg="rviz"/>
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find kinova_gazebo)/rviz/traj_viz.rviz"/> -->
   <node pkg="human_traj_display" name="human_traj_display" type="execute_human_traj_server.py" output="screen" />
+
+  <!-- Launch trajectory controller -->
+  <!-- <node pkg="kinova_driver" type="hlpr_trajectory_controller" name="jaco_trajectory_controller" output="screen">
+    <param name="sim" value="true" />
+    <param name="joint_state_topic" value="/j2s7s300/joint_states" />
+  </node> -->
 
   <!-- END SECTION: Maintenance -->
 
