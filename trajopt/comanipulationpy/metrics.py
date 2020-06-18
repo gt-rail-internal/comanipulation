@@ -35,10 +35,23 @@ def metrics_to_csv(test_case, our_metrics, baseline):
     baseline: Scores of the baselines
     """
     file_name = '../human_prob_models/scripts/csvFiles/TestingResults.csv'
-    # cols = df.columns[1:]
-    data = [test_case, np.mean(our_metrics[:,0]), np.mean(our_metrics[:,2]), np.mean(our_metrics[:,1]), np.mean(our_metrics[:,3]), np.mean(baseline_metrics[:,0,0]), np.mean(baseline_metrics[:,0,2]), np.mean(baseline_metrics[:,0,1]), np.mean(baseline_metrics[:,0,3]), np.mean(baseline_metrics[:,1,0]), np.mean(baseline_metrics[:,1,2]), np.mean(baseline_metrics[:,1,1]), np.mean(baseline_metrics[:,1,3]), np.mean(baseline_metrics[:,2,0]), np.mean(baseline_metrics[:,2,2]), np.mean(baseline_metrics[:,2,1]), np.mean(baseline_metrics[:,2,3])]
+    data = [test_case]
+    headers = ["Test Case"]
+    for index, metric in enumerate(our_metrics):
+        headers.append("Our Metrics_"+METRIC_ORDER[index])
+        data.append(np.mean(metric))
+    for i in range(3):
+        for index, metric in enumerate(baseline[i]):
+            if (i == 0):
+                headers.append("Distance + Visibility_"+METRIC_ORDER[index])
+            if (i == 1):
+                headers.append("Legibility_"+METRIC_ORDER[index])
+            if (i == 2):
+                headers.append("Nominal_"+METRIC_ORDER[index])
+            data.append(np.mean(metric))
+    
     df = pd.DataFrame([data])
-    df.to_csv(file_name, mode='a', header=False, index=False)
+    df.to_csv(file_name, mode='a', header=false, index=False)
 
 def print_metrics(comanipulationMetrics, baselineMetrics):
     metric_print_helper(comanipulationMetrics, "Our Metrics")

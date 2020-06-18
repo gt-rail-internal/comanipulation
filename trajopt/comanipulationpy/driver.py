@@ -17,10 +17,11 @@ def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execu
         baselineTest = Test(robot,joint_start, joint_target, traj_num=trajectory, execute=execute_baseline, 
                         enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
         all_baseline_metrics[:, :, trajIndex] = baselineTest.run_all_baselines()
+        metrics_to_csv(trajectory, all_comanipulation_metrics[:, trajIndex], all_baseline_metrics[:, :, trajIndex])
     print_metrics(all_comanipulation_metrics, all_baseline_metrics)
 
     test_case = ''.join(str(test) + ", " for test in trajectories)
-    metrics_to_csv(test_case[:-2], all_comanipulation_metrics, all_baseline_metrics)
+    
     
 
 if __name__ == "__main__":
