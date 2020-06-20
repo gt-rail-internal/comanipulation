@@ -1,6 +1,6 @@
 from trajectory_framework import TrajectoryFramework
 from tests import Test
-from metrics import print_metrics, metrics_to_csv
+from metrics import print_metrics, metrics_to_csv, save_experiments
 import numpy as np
 
 
@@ -21,7 +21,7 @@ def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execu
     print_metrics(all_comanipulation_metrics, all_baseline_metrics)
 
     test_case = ''.join(str(test) + ", " for test in trajectories)
-    
+    save_experiments(test_case[:-2], all_comanipulation_metrics, all_baseline_metrics)
     
 
 if __name__ == "__main__":
