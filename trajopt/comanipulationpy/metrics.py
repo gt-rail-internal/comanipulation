@@ -30,6 +30,13 @@ def metric_print_helper(metrics, heading):
     print("\n")
 
 def create_csv(file_name, our_metrics, baseline):
+    """
+    Helper method to create the csv with the proper header
+
+    filename: the filename of the csv
+    our_metrics: Scores of our metrics
+    baseline: Scores of the baselines
+    """
     headers = ["Test Case"]
     for index, metric in enumerate(our_metrics):
         headers.append("Our Metrics_"+METRIC_ORDER[index])
@@ -50,6 +57,7 @@ def metrics_to_csv(test_case, our_metrics, baseline):
     """
     Helper method to output the metrics to a csv for easy interpretation
 
+    test_case: the experiment that was run
     our_metrics: Scores of our metrics
     baseline: Scores of the baselines
     """
@@ -71,15 +79,16 @@ def metrics_to_csv(test_case, our_metrics, baseline):
 
 def save_experiments(test_case, our_metrics, baseline):
     """
-    Helper method to output the metrics to a csv for easy interpretation
+    Helper method to output our experiemtns for reference and for the future paper results 
 
+    test_case: the experiments that were run
     our_metrics: Scores of our metrics
     baseline: Scores of the baselines
     """
     file_name = '../human_prob_models/scripts/csvFiles/ExperimentResults.csv'
     data = [test_case]
     for index, metric in enumerate(our_metrics):
-        data.append(np.mean(metric))
+        data.append(str(str(np.mean(metric)) + " +/- " + str(np.std(metric))))
     for i in range(4):
         for index, metric in enumerate(baseline[i]):
             data.append(str(str(np.mean(metric)) + " +/- " + str(np.std(metric))))
