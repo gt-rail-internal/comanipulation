@@ -117,9 +117,11 @@ class Scene:
         full_human_traj_len: total number of human timesteps
         """
         # if self.use_ros and not self.use_jaco:
-        self.follow_joint_trajectory_client.follow_trajectory(
-            [traj[0], traj[0]], duration=4)
+        # self.follow_joint_trajectory_client.follow_trajectory(
+        #     [traj[0], traj[0]], duration=4)
 
+        raw_input("Ready to move to initial position")
+        self.follow_joint_trajectory_client.move_to(traj[0])
         full_human_traj = traj_utils.create_human_trajectory_tree(human_traj)
         if enable_estop:
             if resume_safely:
