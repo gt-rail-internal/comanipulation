@@ -22,7 +22,7 @@ from const import ROBOTS_DICT
 OBJECT_POS = [0, 0.2, 0.83]
 
 class TrajectoryFramework:
-    def __init__(self, robot_type, plot, num_human_joints=11, enable_estop=False, resume_safely=False, collision_threshold=0.25):
+    def __init__(self, robot_type, plot, num_human_joints=11):
         self.num_human_joints = num_human_joints
         self.robot_type = robot_type
         self.plot = plot
@@ -33,10 +33,6 @@ class TrajectoryFramework:
     
         self.ros_initialized = False
         self.trajectory_solver = TrajectoryPlanner(self.scene, n_human_joints=self.num_human_joints)
-
-        self.enable_estop = enable_estop
-        self.resume_safely = resume_safely
-        self.collision_threshold = collision_threshold
 
     def setup_ros(self):
         """
@@ -122,7 +118,7 @@ class TrajectoryFramework:
 
         if traj_num > 0 and not self.is_real:
             result, _ = self.trajectory_solver.solve_traj_save_plot_exec(init_joint, final_joint, coeffs=coeffs, 
-                object_pos=OBJECT_POS, execute=execute, enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                object_pos=OBJECT_POS, execute=execute)
         else:
             result, _ = self.trajectory_solver.solve_traj(init_joint, final_joint, 
                             coeffs=coeffs, object_pos=OBJECT_POS)
