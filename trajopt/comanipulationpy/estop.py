@@ -17,17 +17,20 @@ joint_state_topics = {
 
 global robot_joints
 robot_joints = []
+robot_joint_names = []
 
 def get_human_pose_fake(listener):
     """
     Returns a cartesian-space human pose in the world frame
     """
     pose = []
-    for joint_name in ['/right_shoulder', '/right_elbow', '/right_wrist', '/right_palm', '/neck', '/head', '/torso', '/left_shoulder', '/left_elbow', '/left_wrist', '/left_palm']:
+    for joint_name in ['human_right_shoulder', 'human_right_elbow', 'human_right_wrist', 'human_right_palm', 'human_neck', 'human_head', 'human_torso', 'human_left_shoulder', 'human_left_elbow', 'human_left_wrist', 'human_left_palm']:
         try:
             translation, _ = listener.lookupTransform("/world", joint_name, rospy.Time(0))
+            # translation, _ = listener.lookupTransform(joint_name, "/world", rospy.Time(0))
             pose.extend(translation)
-        except:
+        except Exception, e:
+            # print("Error looking up transform: %s"%e)
             return []
     return pose
 
@@ -42,12 +45,17 @@ def set_robot_joints(data):
     Rospy callback that sets robot_joints to the values given by parameter `data`
     """
     global robot_joints
-    pass
+    my_joints = []
+    name_to_pos = dict(zip(data.name, data.position))
+    for joint_name in robot_joint_names:
+        my_joints.append(name_to_pos[joint_name])
+    robot_joints = my_joints
 
 def stop_robot(controller_topic):
     """
     Stops the robot by cancelling the in-progress trajectory
     """
+    print("STOPPING")
     msg = rospy.wait_for_message(controller_topic+"/follow_joint_trajectory/status", GoalStatusArray)
     stopper = rospy.Publisher(controller_topic+"/follow_joint_trajectory/cancel", GoalID, queue_size=1)
     stopper.publish(msg.status_list[-1].goal_id)
@@ -66,6 +74,8 @@ if __name__ == "__main__":
 
     robot_info = ROBOTS_DICT[sys.argv[1]]
     joint_topic = joint_state_topics[sys.argv[1]]
+    robot_joint_names = robot_info.controller_joints
+
     scene = Scene(robot_info)
     rospy.Subscriber(joint_topic, JointState, set_robot_joints)
 
@@ -75,7 +85,11 @@ if __name__ == "__main__":
         elif sys.argv[2] == "real":
             human_pose = get_human_pose_real()
         
+        if len(human_pose) == 0:
+            continue
+        
         distance = get_separation_dist(scene, human_pose, robot_joints)
+        print("Distance = %0.3f" % distance)
         if distance < ESTOP_THRESHOLD:
             stop_robot(robot_info.controller_name)
-        pass
+        rate.sleep()
