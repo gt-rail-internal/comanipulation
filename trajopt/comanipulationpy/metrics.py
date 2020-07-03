@@ -4,6 +4,9 @@ import numpy as np
 import math
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+import pandas as pd
+import os.path
+from os import path
 
 import traj_utils 
 
@@ -25,6 +28,78 @@ def metric_print_helper(metrics, heading):
     for index, metric in enumerate(metrics):
         print(METRIC_ORDER[index] + ": " + str(np.mean(metric)) + " +/- " + str(np.std(metric)))
     print("\n")
+
+def create_csv(file_name, our_metrics, baseline):
+    """
+    Helper method to create the csv with the proper header
+
+    filename: the filename of the csv
+    our_metrics: Scores of our metrics
+    baseline: Scores of the baselines
+    """
+    headers = ["Test Case"]
+    for index, metric in enumerate(our_metrics):
+        headers.append("Our Metrics_"+METRIC_ORDER[index])
+    for i in range(4):
+        for index, metric in enumerate(baseline[i]):
+            if (i == 0):
+                headers.append("Distance + Visibility_"+METRIC_ORDER[index])
+            if (i == 1):
+                headers.append("Legibility_"+METRIC_ORDER[index])
+            if (i == 2):
+                headers.append("Nominal Trajectory_"+METRIC_ORDER[index])
+            if (i == 3):
+                headers.append("Speed Control_"+METRIC_ORDER[index])
+    df = pd.DataFrame(columns=headers)
+    df.to_csv(file_name, index=False)
+
+def metrics_to_csv(test_case, our_metrics, baseline):
+    """
+    Helper method to output the metrics to a csv for easy interpretation
+
+    test_case: the experiment that was run
+    our_metrics: Scores of our metrics
+    baseline: Scores of the baselines
+    """
+    file_name = '../human_prob_models/scripts/csvFiles/TestingResults.csv'
+    data = [test_case]
+    for index, metric in enumerate(our_metrics):
+        data.append(np.mean(metric))
+    for i in range(4):
+        for index, metric in enumerate(baseline[i]):
+            data.append(np.mean(metric))
+
+    if not path.exists(file_name):
+        create_csv(file_name, our_metrics, baseline)
+
+    df = pd.DataFrame([data])
+
+    # For the first run, set header=headers
+    df.to_csv(file_name, mode='a', header=False, index=False)
+
+def save_experiments(test_case, our_metrics, baseline):
+    """
+    Helper method to output our experiemtns for reference and for the future paper results 
+
+    test_case: the experiments that were run
+    our_metrics: Scores of our metrics
+    baseline: Scores of the baselines
+    """
+    file_name = '../human_prob_models/scripts/csvFiles/ExperimentResults.csv'
+    data = [test_case]
+    for index, metric in enumerate(our_metrics):
+        data.append(str(str(np.mean(metric)) + " +/- " + str(np.std(metric))))
+    for i in range(4):
+        for index, metric in enumerate(baseline[i]):
+            data.append(str(str(np.mean(metric)) + " +/- " + str(np.std(metric))))
+
+    if not path.exists(file_name):
+        create_csv(file_name, our_metrics, baseline)
+
+    df = pd.DataFrame([data])
+
+    # For the first run, set header=headers
+    df.to_csv(file_name, mode='a', header=False, index=False)
 
 def print_metrics(comanipulationMetrics, baselineMetrics):
     metric_print_helper(comanipulationMetrics, "Our Metrics")
