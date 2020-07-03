@@ -14,7 +14,7 @@ from scene_utils import Scene
 from const import ROBOTS_DICT
 from metrics import get_separation_dist
 
-ESTOP_THRESHOLD = 0.1
+ESTOP_THRESHOLD = 0.2
 
 joint_state_topics = {
     "jaco": "/j2s7s300/joint_states",
@@ -22,7 +22,7 @@ joint_state_topics = {
 }
 
 class EStop:
-    def __init__(self, robot_name, human_is_fake, threshold=0.2, rate=10):
+    def __init__(self, robot_name, human_is_fake, threshold=ESTOP_THRESHOLD, rate=10):
         """
         robot_name: the name of the robot ('jaco', 'jaco-real', 'iiwa', or 'franka')
         human_is_fake: boolean telling us if we're getting real or fake human data
