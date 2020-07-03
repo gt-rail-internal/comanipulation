@@ -17,7 +17,8 @@ from metrics import get_separation_dist
 ESTOP_THRESHOLD = 0.1
 
 joint_state_topics = {
-    "jaco": "/j2s7s300/joint_states"
+    "jaco": "/j2s7s300/joint_states",
+    "iiwa": "/iiwa/joint_states"
 }
 
 class EStop:
