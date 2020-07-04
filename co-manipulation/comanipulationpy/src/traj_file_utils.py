@@ -8,7 +8,7 @@ import math
 
 from traj_utils import create_human_means_vars, create_human_trajectory_tree
 
-CSV_FOLDER = "../human_prob_models/scripts/csvFiles"
+CSV_FOLDER = path.join(const.PARENT_DIR, "human_prob_models/scripts/csvFiles")
 TRAIN_FOLDER = path.join(CSV_FOLDER, "Train")
 TEST_FOLDER = path.join(CSV_FOLDER, "Test")
 

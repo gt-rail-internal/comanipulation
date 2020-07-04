@@ -35,7 +35,8 @@ RIGHT_SHOULDER_OFFSETS = {120 : [-1.5, -0.4, 0.1],
 RobotInfo = namedtuple(
     "RobotInfo", "model arm_name eef_link_name all_links controller_name controller_joints")
 
-DATA_FOLDER = "../data/"
+PARENT_DIR = path.abspath(path.join(path.dirname(path.abspath(__file__)), path.pardir))
+DATA_FOLDER = path.join(PARENT_DIR, 'dae')
 
 ROBOTS_DICT = {
     "jaco": RobotInfo(path.join(DATA_FOLDER, "jaco-test.dae"), "test_arm", "j2s7s300_ee_link",

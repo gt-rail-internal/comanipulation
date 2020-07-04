@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import rospy
 import tf
 import actionlib
@@ -9,6 +11,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 import sys
+import comanipulationpy
 from scene_utils import Scene
 
 from const import ROBOTS_DICT
@@ -115,7 +118,7 @@ class EStop:
                 continue
             
             distance = get_separation_dist(self.scene, human_pose, self.robot_joints)
-            print("Distance = %0.3f" % distance)
+            # print("Distance = %0.3f" % distance)
             if distance < self.threshold and not self.is_stopped:
                 self.stop_robot()
             self.rate.sleep()
