@@ -1,8 +1,8 @@
-*/build/*
+**/build
 trajopt/build_trajopt/*
 co-manipulation/comanipulationpy/src/metrics
 co-manipulation/comanipulationpy/src/plots
 co-manipulation/comanipulationpy/src/trajectories
 *.pyc
-*__pycache__*
-*/.vscode/*
+**/__pycache__
+**/.vscode
