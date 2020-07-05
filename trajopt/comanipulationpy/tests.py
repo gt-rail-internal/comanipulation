@@ -32,12 +32,11 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "distance": [1000000.0 for _ in range(num_timesteps)],
+            "distance": [100000.0 for _ in range(num_timesteps)],
             'visibility': [10.0 for _ in range(num_timesteps)],
-            # "regularization": [10.0 for _ in range(num_timesteps - 1)],
+            "regularization": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
-            "smoothing": dict(cost=10, type=2),
-            "nominal": 0.5
+            "smoothing": dict(cost=10, type=2)
         }
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
@@ -120,8 +119,9 @@ class Test:
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
             'legibility': 10000000.0,
-            'regularize': [1.0 for _ in range(num_timesteps - 1)],
+            "regularization": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
+            "smoothing": dict(cost=10, type=2)
         }
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
