@@ -113,8 +113,6 @@ class Test:
         final_joint: the end robot position
 
         """
-        object_pos = [0, 0.2, 0.83]
-
         default_traj, default_eef_traj = self.framework.trajectory_solver.get_default_traj(
                 self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
         
@@ -140,7 +138,7 @@ class Test:
             num_human_timesteps = len(rightarm_traj)/12
             self.framework.scene.execute_full_trajectory(adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, num_human_timesteps)
 
-        return metrics.evaluate_metrics(self.framework.scene, adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, object_pos, default_traj)
+        return metrics.evaluate_metrics(self.framework.scene, adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, self.OBJECT_POS, default_traj)
 
     def run_all_baselines(self):
         metrics = []

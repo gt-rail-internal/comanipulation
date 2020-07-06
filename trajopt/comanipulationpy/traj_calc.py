@@ -73,6 +73,16 @@ class TrajectoryPlanner:
             self.complete_pred_traj_means, self.complete_pred_traj_vars)
         self.n_pred_timesteps = len(
             self.complete_pred_traj_means_expanded) / (self.n_human_joints * 3)
+        
+        self.full_complete_test_traj = traj_utils.create_human_plot_traj(self.full_rightarm_test_traj)
+        self.obs_complete_test_traj = traj_utils.create_human_plot_traj(self.obs_rightarm_test_traj)
+        num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
+        final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
+        head_ind = 5
+        torso_ind = 6
+        self.head_pos = self.full_complete_test_traj[(final_obs_timestep_ind * self.n_human_joints + head_ind) * 3 : (final_obs_timestep_ind * self.n_human_joints + head_ind + 1) * 3]
+        self.torso_pos = self.full_complete_test_traj[(final_obs_timestep_ind * self.n_human_joints + torso_ind) * 3 : (final_obs_timestep_ind * self.n_human_joints + torso_ind + 1) * 3]
+        self.feet_pos = [self.torso_pos[0], self.torso_pos[1], self.torso_pos[2] - 0.5]
 
     def set_traj(self, complete_traj_means, complete_traj_vars):
         """
@@ -148,6 +158,10 @@ class TrajectoryPlanner:
         if "distance" in coeffs:
             req_util.add_distance_cost(request, self.complete_pred_traj_means_expanded,
                                        self.complete_pred_traj_vars_expanded, coeffs["distance"], self.n_human_joints, self.scene.all_links)
+        if "distanceBaseline" in coeffs:
+            
+
+            req_util.add_distance_baseline_cost(request, )
         if "collision" in coeffs:
             req_util.add_collision_cost(
                 request, coeffs["collision"]["cost"], coeffs["collision"]["dist_pen"])
