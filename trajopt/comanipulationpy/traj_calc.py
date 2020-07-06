@@ -76,7 +76,7 @@ class TrajectoryPlanner:
         
         self.full_complete_test_traj = traj_utils.create_human_plot_traj(self.full_rightarm_test_traj)
         self.obs_complete_test_traj = traj_utils.create_human_plot_traj(self.obs_rightarm_test_traj)
-        num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
+        self.num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
         final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
         head_ind = 5
         torso_ind = 6
@@ -136,14 +136,14 @@ class TrajectoryPlanner:
         final_joint: the desired set of joint angles
         coeffs: A dictionary containing information on weights. All keys are optional.
         Valid keys are 
-            'distance': array of length num_timesteps
-            'collision': a dictionary mapping 'cost' and 'dist_pen' to number arrays
-            'nominal': number
-            'regularize': array of length num_timesteps - 1
-            'smoothing': dictionary mapping 'cost' and 'type' to a number and an int, respectively
-            'velocity': array of length num_timesteps
-            'visibility': array of length num_timesteps
-            'legibility': number
+            "distance": array of length num_timesteps
+            "collision": a dictionary mapping 'cost' and 'dist_pen' to number arrays
+            "nominal": number
+            "regularize": array of length num_timesteps - 1
+            "smoothing": dictionary mapping 'cost' and 'type' to a number and an int, respectively
+            "velocity": array of length num_timesteps
+            "visibility": array of length num_timesteps
+            "legibility": number
         object_pos: The position of the object of interest to the person. Only needed for
             visiblity cost
         """
@@ -159,9 +159,11 @@ class TrajectoryPlanner:
             req_util.add_distance_cost(request, self.complete_pred_traj_means_expanded,
                                        self.complete_pred_traj_vars_expanded, coeffs["distance"], self.n_human_joints, self.scene.all_links)
         if "distanceBaseline" in coeffs:
-            
+            req_util.add_distance_baseline_cost(request, self.head_pos, self.torso_pos, self.feet_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["distanceBaseline"])
+        
+        if "visibilityBaseline" in coeffs:
+            req_util.add_visibility_baseline_cost(request, self.head_pos, self.scene.object_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["visibilityBaseline"])
 
-            req_util.add_distance_baseline_cost(request, )
         if "collision" in coeffs:
             req_util.add_collision_cost(
                 request, coeffs["collision"]["cost"], coeffs["collision"]["dist_pen"])
@@ -174,17 +176,20 @@ class TrajectoryPlanner:
         if "smoothing" in coeffs:
             req_util.add_smoothing_cost(
                 request, coeffs["smoothing"]["cost"], coeffs["smoothing"]["type"])
-        if 'velocity' in coeffs:
+        if "velocity" in coeffs:
             req_util.add_velocity_cost(request, self.complete_pred_traj_means_expanded,
-                                       self.complete_pred_traj_vars_expanded, coeffs['velocity'], self.n_human_joints, self.scene.all_links)
-        if 'visibility' in coeffs:
+                                       self.complete_pred_traj_vars_expanded, coeffs["velocity"], self.n_human_joints, self.scene.all_links)
+        if "visibility" in coeffs:
             head_pred_traj_mean, head_pred_traj_var = traj_utils.create_human_head_means_vars(
                 self.complete_pred_traj_means_expanded, self.complete_pred_traj_vars_expanded)
             req_util.add_visibility_cost(request, head_pred_traj_mean, head_pred_traj_var,
-                                         coeffs['visibility'], object_pos, self.scene.eef_link_name)
-        if 'legibility' in coeffs:
+                                         coeffs["visibility"], object_pos, self.scene.eef_link_name)
+        if "legibility" in coeffs:
             req_util.add_legibility_cost(
-                request, coeffs['legibility'], self.scene.eef_link_name)
+                request, coeffs["legibility"], self.scene.eef_link_name)
+        
+        if "joint_vel" in coeffs:
+            req_util.add_joint_vel_cost(request, coeffs["joint_vel"])
 
         result = self.optimize_problem(request)
         eef_traj = self.scene.follow_trajectory(np.array(result.GetTraj()))

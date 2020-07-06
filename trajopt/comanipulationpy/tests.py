@@ -32,9 +32,9 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "distance": [1000000.0 for _ in range(num_timesteps)],
-            'visibility': [10.0 for _ in range(num_timesteps)],
-            "regularization": [10.0 for _ in range(num_timesteps - 1)],
+            "distanceBaseline": 5,
+            "visibilityBaseline": 5,
+            "regularization": [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2)
         }
@@ -63,7 +63,7 @@ class Test:
         """
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            'legibility': 10000000.0,
+            "legibility": 10000000.0,
             "regularization": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2)
@@ -91,7 +91,7 @@ class Test:
         plot: the file to which to write a plot of the end effector trajectory
         traj_num: the trajectory number to examine
         """
-        coeffs = {'nominal': 5}
+        coeffs = {"nominal": 5}
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
                 save='trajectories/nominal.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)

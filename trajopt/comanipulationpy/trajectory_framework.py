@@ -90,14 +90,14 @@ class TrajectoryFramework:
         num_timesteps = self.trajectory_solver.n_pred_timesteps
 
         coeffs = {
-            'nominal': 10.0,
-            'distance': [10000.0 for _ in range(num_timesteps)],
-            'velocity': [100.0 for _ in range(num_timesteps)],
-            'visibility': [0.5 for _ in range(num_timesteps)],
-            'regularize': [5.0 for _ in range(num_timesteps - 1)],
-            'legibility': 100.0,
-            'collision': dict(cost=[20], dist_pen=[0.025]),
-            'smoothing': dict(cost=200, type=2)
+            "nominal": 10.0,
+            "distance": [10000.0 for _ in range(num_timesteps)],
+            "velocity": [100.0 for _ in range(num_timesteps)],
+            "visibility": [0.5 for _ in range(num_timesteps)],
+            "regularize": [5.0 for _ in range(num_timesteps - 1)],
+            "legibility": 100.0,
+            "collision": dict(cost=[20], dist_pen=[0.025]),
+            "smoothing": dict(cost=200, type=2)
         }
 
 
@@ -141,14 +141,14 @@ class TrajectoryFramework:
         num_timesteps = self.trajectory_solver.n_pred_timesteps
 
         coeffs = {
-            'nominal': 10.0,
-            'distance': [10000.0 for _ in range(num_timesteps)],
-            'velocity': [100.0 for _ in range(num_timesteps)],
-            'visibility': [0.5 for _ in range(num_timesteps)],
-            'regularize': [5.0 for _ in range(num_timesteps - 1)],
-            'legibility': 100.0,
-            'collision': dict(cost=[20], dist_pen=[0.025]),
-            'smoothing': dict(cost=200, type=2)
+            "nominal": 10.0,
+            "distance": [10000.0 for _ in range(num_timesteps)],
+            "velocity": [100.0 for _ in range(num_timesteps)],
+            "visibility": [0.5 for _ in range(num_timesteps)],
+            "regularize": [5.0 for _ in range(num_timesteps - 1)],
+            "legibility": 100.0,
+            "collision": dict(cost=[20], dist_pen=[0.025]),
+            "smoothing": dict(cost=200, type=2)
         }
 
         if traj_num > 0 and not self.is_real:
