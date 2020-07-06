@@ -30,6 +30,7 @@ class Test:
         plot: the file to which to write a plot of the end effector trajectory
         traj_num: the trajectory number to examine
         """
+        self.framework.trajectory_solver.n_pred_timesteps = 20
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
             "distanceBaseline": 5,
@@ -61,6 +62,7 @@ class Test:
         plot: the file to which to write a plot of the end effector trajectory
         traj_num: the trajectory number to examine
         """
+        self.framework.trajectory_solver.n_pred_timesteps = 20
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
             "legibility": 10000000.0,
@@ -91,7 +93,8 @@ class Test:
         plot: the file to which to write a plot of the end effector trajectory
         traj_num: the trajectory number to examine
         """
-        coeffs = {"nominal": 5}
+        self.framework.trajectory_solver.n_pred_timesteps = 20
+        coeffs = {"joint_vel": 1}
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
                 save='trajectories/nominal.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
@@ -113,6 +116,7 @@ class Test:
         final_joint: the end robot position
 
         """
+        self.framework.trajectory_solver.n_pred_timesteps = 20
         default_traj, default_eef_traj = self.framework.trajectory_solver.get_default_traj(
                 self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
         
