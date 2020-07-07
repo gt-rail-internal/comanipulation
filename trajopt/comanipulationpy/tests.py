@@ -38,7 +38,7 @@ class Test:
         coeffs = {
             "distanceBaseline": 5,
             "visibilityBaseline": 5,
-            "regularization": [1.0 for _ in range(num_timesteps - 1)],
+            "regularize": [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2)
         }
@@ -46,16 +46,18 @@ class Test:
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
                 save='trajectories/distance.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        
         # print("Head pos = " + str(self.framework.trajectory_solver.head_pos))
         # print("Torso pos = " + str(self.framework.trajectory_solver.torso_pos))
         # print("Feet pos = " + str(self.framework.trajectory_solver.feet_pos))
         # print("Object pos = " + str(self.OBJECT_POS))
         # print("Distance viz baseline = " + str(result.GetTraj()))
+        # print("Default Traj = " + str(default_traj))
         # sys.exit("Distance viz baseline traj above")
-        full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
-        default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
+        
         return metrics.evaluate_metrics(self.framework.scene, result.GetTraj(), 
-            full_complete_test_traj, 
+            self.framework.trajectory_solver.full_complete_test_traj, 
             len(self.framework.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
             self.OBJECT_POS, default_traj)
 
@@ -74,9 +76,9 @@ class Test:
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
             "legibility": 10000000.0,
-            "regularization": [10.0 for _ in range(num_timesteps - 1)],
-            "collision": dict(cost=[20], dist_pen=[0.025]),
-            "smoothing": dict(cost=10, type=2)
+            # "regularize": [10.0 for _ in range(num_timesteps - 1)],
+            "collision": dict(cost=[20], dist_pen=[0.025])
+            # "smoothing": dict(cost=10, type=2)
         }
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
