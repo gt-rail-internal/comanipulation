@@ -77,11 +77,11 @@ class TrajectoryPlanner:
         self.full_complete_test_traj = traj_utils.create_human_plot_traj(self.full_rightarm_test_traj)
         self.obs_complete_test_traj = traj_utils.create_human_plot_traj(self.obs_rightarm_test_traj)
         self.num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
-        final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
+        self.final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
         head_ind = 5
         torso_ind = 6
-        self.head_pos = self.full_complete_test_traj[(final_obs_timestep_ind * self.n_human_joints + head_ind) * 3 : (final_obs_timestep_ind * self.n_human_joints + head_ind + 1) * 3]
-        self.torso_pos = self.full_complete_test_traj[(final_obs_timestep_ind * self.n_human_joints + torso_ind) * 3 : (final_obs_timestep_ind * self.n_human_joints + torso_ind + 1) * 3]
+        self.head_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + head_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + head_ind + 1) * 3]
+        self.torso_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + torso_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + torso_ind + 1) * 3]
         self.feet_pos = [self.torso_pos[0], self.torso_pos[1], self.torso_pos[2] - 0.5]
 
     def set_traj(self, complete_traj_means, complete_traj_vars):
@@ -240,6 +240,8 @@ class TrajectoryPlanner:
                 done = True
             elif human_timestep == (num_timesteps - 1) and scaling_factor == 1:
                 done = True
+            else:
+                done = False
         
         return new_exec_traj
 

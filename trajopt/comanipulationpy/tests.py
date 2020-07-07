@@ -128,7 +128,8 @@ class Test:
         default_traj, default_eef_traj = self.framework.trajectory_solver.get_default_traj(
                 self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
         
-        human_traj = self.framework.trajectory_solver.complete_pred_traj_means_expanded
+        human_joints_num = 11
+        human_traj = self.framework.trajectory_solver.full_complete_test_traj[self.framework.trajectory_solver.final_obs_timestep_ind * human_joints_num * 3 : ]
         adapted_robot_traj_fast = self.framework.trajectory_solver.calculate_adaptive_trajectory(default_traj, human_traj)
 
         if len(adapted_robot_traj_fast) < 200:
@@ -143,14 +144,14 @@ class Test:
         adapted_robot_traj_slow = []
         for i in range(20):
             adapted_robot_traj_slow.append(adapted_robot_fast_spline(i * 10))
+        
+        # print("Adapted Traj = " + str(adapted_robot_traj_slow))
+        # sys.exit("Speed Adj Baseline above")
 
-        rightarm_traj = self.framework.trajectory_solver.full_rightarm_test_traj
-        num_obs_timesteps = len(self.framework.trajectory_solver.obs_rightarm_test_traj)/12
         if (self.execute):
-            num_human_timesteps = len(rightarm_traj)/12
-            self.framework.scene.execute_full_trajectory(adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, num_human_timesteps)
+            self.framework.scene.execute_full_trajectory(adapted_robot_traj_slow, self.framework.trajectory_solver.full_rightarm_test_traj, self.framework.trajectory_solver.final_obs_timestep_ind, self.framework.trajectory_solver.num_human_timesteps)
 
-        return metrics.evaluate_metrics(self.framework.scene, adapted_robot_traj_slow, rightarm_traj, num_obs_timesteps, self.OBJECT_POS, default_traj)
+        return metrics.evaluate_metrics(self.framework.scene, adapted_robot_traj_slow, self.framework.trajectory_solver.full_complete_test_traj, self.framework.trajectory_solver.final_obs_timestep_ind, self.OBJECT_POS, default_traj)
 
     def run_all_baselines(self):
         metrics = []
