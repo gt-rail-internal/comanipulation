@@ -5,19 +5,15 @@ import metrics
 import traj_utils
 
 class Test:
-    def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False, enable_estop=False, resume_safely=False, collision_threshold=0.25):
+    def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False):
         self.robot_type, self.plot = robot_type, plot
-        self.framework = TrajectoryFramework(self.robot_type, self.plot, enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
+        self.framework = TrajectoryFramework(self.robot_type, self.plot)
         self.framework.trajectory_solver.load_traj_file(traj_num)
         self.OBJECT_POS = [0, 0.2, 0.83]
         self.init_joint, self.final_joint = init_joint, final_joint
         self.execute = execute
         if execute:
             self.framework.setup_ros()
-        
-        self.enable_estop = enable_estop
-        self.resume_safely = resume_safely
-        self.collision_threshold = collision_threshold
 
     def distance_visibility_test(self, plot=''):
         """
@@ -42,7 +38,7 @@ class Test:
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
-                save='trajectories/distance.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                save='trajectories/distance.txt')
         
         full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
@@ -67,7 +63,7 @@ class Test:
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
-                save='trajectories/velocity.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                save='trajectories/velocity.txt')
         
         full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
@@ -96,8 +92,7 @@ class Test:
         }
         
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
-                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, enable_estop=self.enable_estop,
-                resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute)
         
         full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
@@ -126,7 +121,7 @@ class Test:
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
-                save='trajectories/legibility.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                save='trajectories/legibility.txt')
         
         full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
@@ -149,7 +144,7 @@ class Test:
         coeffs = {'nominal': 5}
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
-                save='trajectories/nominal.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                save='trajectories/nominal.txt')
         
         full_complete_test_traj = traj_utils.create_human_plot_traj(self.framework.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
