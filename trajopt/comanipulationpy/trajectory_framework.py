@@ -18,6 +18,7 @@ import rospy
 
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+import sys
 
 RobotInfo = namedtuple(
     "RobotInfo", "model arm_name eef_link_name all_links controller_name controller_joints")
@@ -143,7 +144,7 @@ class TrajectoryFramework:
         coeffs = {
             "nominal": 10.0,
             "distance": [10000.0 for _ in range(num_timesteps)],
-            "velocity": [100.0 for _ in range(num_timesteps)],
+            # "velocity": [100.0 for _ in range(num_timesteps)],
             "visibility": [0.5 for _ in range(num_timesteps)],
             "regularize": [5.0 for _ in range(num_timesteps - 1)],
             "legibility": 100.0,
@@ -160,9 +161,11 @@ class TrajectoryFramework:
             if execute:
                 self.scene.execute_trajectory(result.GetTraj())
 
-        full_complete_test_traj = traj_utils.create_human_plot_traj(self.trajectory_solver.full_rightarm_test_traj)
         default_traj, _ = self.trajectory_solver.get_default_traj(init_joint, final_joint, self.trajectory_solver.n_pred_timesteps)
+        # print("Trajectory = " + str(result.GetTraj()))
+        # print("Default Traj = " + str(default_traj))
+        # sys.exit("Our traj above")
         return metrics.evaluate_metrics(self.scene, result.GetTraj(), 
-            full_complete_test_traj, 
+            self.trajectory_solver.full_complete_test_traj, 
             len(self.trajectory_solver.obs_rightarm_test_traj) / 12, # assuming 4 arm joints
             OBJECT_POS, default_traj)

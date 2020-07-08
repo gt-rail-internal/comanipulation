@@ -210,7 +210,7 @@ VectorXd DistanceCostCalculator::operator()(const VectorXd& dof_vals) const {
         double dist_cost_inv = dist.transpose() * human_poses_var_.at(t * n_human_joints_ + j).inverse() * dist;
         double dist_cost_quad = 1.0 / dist_cost_inv;
         
-        costs_vals(t) = dist_cost_quad;
+        costs_vals(t) += dist_cost_quad;
       }
     }
   }

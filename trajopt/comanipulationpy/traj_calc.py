@@ -193,7 +193,6 @@ class TrajectoryPlanner:
 
         result = self.optimize_problem(request)
         eef_traj = self.scene.follow_trajectory(np.array(result.GetTraj()))
-
         return result, eef_traj
 
     def calculate_adaptive_trajectory(self, robot_joints, human_traj):
