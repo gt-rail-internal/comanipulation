@@ -285,7 +285,7 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
     """
     n_robot_joints = 7
 
-    visibility_threshold = 0.7
+    visibility_threshold = 1.4
 
     robot_traj_spline = traj_calc.cubic_interpolation(robot_traj, n_robot_joints)
     num_below_thres = 0
