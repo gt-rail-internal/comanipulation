@@ -11,11 +11,11 @@ def test_to_format(test_number, lines):
     l = lines[test_number]
     test = l[0]
     print("Test:", test)
-    for i in range(4):
+    for i, t in zip(range(5), [0,2,3,4,1]):
         avgs = []
         sds = []
         for j in range(4):
-            data = l[(i * 4) + (j + 1)]
+            data = l[(t * 4) + (j + 1)]
             avg_sd = data.split(' +/- ')
             avg = float('%.4f'%(float(avg_sd[0]))) * 100
             sd = float('%.4f'%(float(avg_sd[1]))) * 100
