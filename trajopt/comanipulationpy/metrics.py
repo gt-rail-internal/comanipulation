@@ -285,7 +285,7 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
     """
     n_robot_joints = 7
 
-    visibility_threshold = 1.4
+    visibility_threshold = 0.7
 
     robot_traj_spline = traj_calc.cubic_interpolation(robot_traj, n_robot_joints)
     num_below_thres = 0
@@ -298,14 +298,14 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         
         curr_head_pos = full_head_test_traj_expanded[t * 3: (t + 1) * 3]
         vis_t = get_visibility_angle(scene, curr_head_pos, robot_joints, object_pos)
-        # print(vis_t)
+        print(vis_t)
 
         visibilities.append(vis_t)
 
         if vis_t < visibility_threshold:
             num_below_thres += 1
     
-    return num_below_thres * 1.0 / (num_total_timesteps - num_obs_timesteps)
+    return float(num_below_thres) / float(num_total_timesteps - num_obs_timesteps)
 
 def compute_legibility_metric(scene, robot_traj):
     """

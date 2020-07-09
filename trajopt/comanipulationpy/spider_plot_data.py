@@ -8,21 +8,22 @@ def test_to_format(test_number, lines):
     test_number: line number in csv minus 2 (ignore column header and start index at 0)
     lines: all of the csv rows formatted as a list of strings
     """
+    
     l = lines[test_number]
-    test = l[0]
-    print("Test:", test)
-    for i in range(4):
+    for i, t in zip(range(5), [0,2,3,4,1]):
         avgs = []
         sds = []
+        min_sd = 0.0001
         for j in range(4):
-            data = l[(i * 4) + (j + 1)]
+            data = l[(t * 4) + (j + 1)]
             avg_sd = data.split(' +/- ')
             avg = float('%.4f'%(float(avg_sd[0]))) * 100
             sd = float('%.4f'%(float(avg_sd[1]))) * 100
             if j == 3:
-                avg /= 100
-                avg *= -1
+                avg /= -100
                 sd /= 100
+            if sd < min_sd:
+                sd = min_sd
             avgs.append(avg)
             sds.append(sd)
         print("D" + str(i + 1) + " = [" + ' '.join([str(elem) for elem in avgs]) + "];")
@@ -42,6 +43,6 @@ def to_spider_plot_format():
     for line in file:
         lines.append(line)
     lines = lines[1:]
-    test_to_format(1, lines)
+    test_to_format(0, lines)
 
 to_spider_plot_format()

@@ -145,7 +145,7 @@ class TrajectoryFramework:
             "nominal": 10.0,
             "distance": [10000.0 for _ in range(num_timesteps)],
             # "velocity": [100.0 for _ in range(num_timesteps)],
-            "visibility": [0.5 for _ in range(num_timesteps)],
+            "visibility": [100 for _ in range(num_timesteps)],
             "regularize": [5.0 for _ in range(num_timesteps - 1)],
             "legibility": 100.0,
             "collision": dict(cost=[20], dist_pen=[0.025]),
