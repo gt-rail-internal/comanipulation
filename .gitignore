@@ -4,3 +4,4 @@ trajopt/comanipulationpy/trajectories/*
 *.pyc
 *__pycache__*
 */.vscode/*
+.vscode/*
