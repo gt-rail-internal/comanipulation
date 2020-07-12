@@ -208,8 +208,8 @@ class TrajectoryPlanner:
         '''
         scaling_factor = 1  
         d_slow = 0.15 # choose threshold
-        d_stop = 0.6 # choose threshold
-        beta = 0.5 # parameter
+        d_stop = 0.06 # choose threshold
+        beta = 3.3332 # parameter
         gamma = 0.5 # parameter
         traj_interpolation = cubic_interpolation(robot_joints, self.n_robot_joints)
         num_timesteps = len(human_traj)/(self.n_human_joints*3)
