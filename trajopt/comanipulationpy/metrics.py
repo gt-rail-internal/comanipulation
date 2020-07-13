@@ -263,6 +263,8 @@ def compute_distance_metric(scene, human_traj_expanded, num_obs_timesteps, num_t
     num_above_threshold = 0
 
     for t in range(num_obs_timesteps, num_total_timesteps):
+        # robot trajectory is sampled at 10 Hz, human trajectory is sampled at 100 Hz
+        # so robot discrete time is human discrete time / 10
         robot_timestep = (t - num_obs_timesteps) / 10.0
         robot_joints = robot_traj_spline(robot_timestep)
 
@@ -298,6 +300,10 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         
         curr_head_pos = full_head_test_traj_expanded[t * 3: (t + 1) * 3]
         vis_t = get_visibility_angle(scene, curr_head_pos, robot_joints, object_pos)
+<<<<<<< HEAD
+=======
+        # print(vis_t)
+>>>>>>> sam
 
         visibilities.append(vis_t)
 
@@ -310,15 +316,15 @@ def compute_legibility_metric(scene, robot_traj):
     """
     Returns a legibility metric based on the robot's average deviation
     from a linear path in cartesian space. 
-    No upper bound.
+    Bounded between 0 and 1.
 
     scene: an instance of a Scene object (from scene_utils)
     robot_traj: the robot trajectory (vectorized)
     """
     num_timesteps = np.array(robot_traj).shape[0]
     eef_pos_dist = np.zeros((num_timesteps - 1))
-    legibility = 0
-    f_t = np.ones((num_timesteps - 1)) # f_t allows different weighting of the average
+    legibility = 0.0
+    f_t = np.linspace(1, 1.0/num_timesteps, num_timesteps - 1) # np.ones((num_timesteps - 1)) # f_t allows different weighting of the average
 
     eef_goal_pos = scene.get_eef_position(robot_traj[-1])
     eef_start_pos = scene.get_eef_position(robot_traj[0])
@@ -336,7 +342,7 @@ def compute_legibility_metric(scene, robot_traj):
         p_g_given_q = np.exp(-dist_traveled - dist_remaining) / np.exp(-start_goal_dist)
         legibility += p_g_given_q * f_t[i]
 
-    legibility = legibility / np.sum(f_t)
+    legibility = 1 - (legibility / np.sum(f_t))
 
     return legibility
 

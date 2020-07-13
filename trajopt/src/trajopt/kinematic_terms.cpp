@@ -367,7 +367,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
   // scaling function
   VectorXd f_t(num_timesteps - 1);
   // regularizer constant
-  double lambda = 1.0;
+  double lambda = 0.0;
 
   // Get cost of optimal traj from Start to Goal of optimal traj
   manip_->SetDOFValues(toDblVec(dof_vals.segment((num_timesteps - 1) * 7, 7)));
@@ -379,7 +379,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
   // For every timestep (upto T - 1)
   for (int t = 0; t < num_timesteps - 1; t++) {
     // Update scaling factor
-    f_t(t) = 1.0;
+    f_t(t) = 1.0 - ((double)t/(double)num_timesteps);
 
     // Calulcate length of segment and store
     manip_->SetDOFValues(toDblVec(dof_vals.segment(t * 7, 7)));
