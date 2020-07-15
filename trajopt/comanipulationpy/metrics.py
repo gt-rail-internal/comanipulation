@@ -300,10 +300,6 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         
         curr_head_pos = full_head_test_traj_expanded[t * 3: (t + 1) * 3]
         vis_t = get_visibility_angle(scene, curr_head_pos, robot_joints, object_pos)
-<<<<<<< HEAD
-=======
-        # print(vis_t)
->>>>>>> sam
 
         visibilities.append(vis_t)
 
