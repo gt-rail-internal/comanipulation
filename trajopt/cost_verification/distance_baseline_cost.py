@@ -43,6 +43,8 @@
 
 import numpy as np
 from math import exp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def distanceBaselineCostCalculator(human_head, human_torso, human_feet, robot_loc):
 
@@ -62,15 +64,31 @@ def distanceBaselineCostCalculator(human_head, human_torso, human_feet, robot_lo
 
 def plotCostmap(human_head, human_torso, human_feet):
     
-    x_range = [-0.5, 0.5, 0.05]
-    y_range = [-0.5, 0.5, 0.05]
-    z_range = [0, 1.5, 0.05]
+    x_range = [-0.25, 0.25, 0.05]
+    y_range = [-0.25, 0.25, 0.05]
+    z_range = [0, 1.5, 0.1]
+
+    x_coord = []
+    y_coord = []
+    z_coord = []
+    costs  = []
 
     for curr_x in np.arange(x_range[0], x_range[1], x_range[2]):
         for curr_y in np.arange(y_range[0], y_range[1], y_range[2]):
             for curr_z in np.arange(z_range[0], z_range[1], z_range[2]):
                 robot_loc = np.array([curr_x, curr_y, curr_z])
                 curr_cost = distanceBaselineCostCalculator(human_head, human_torso, human_feet, robot_loc)
+                x_coord.append(curr_x)
+                y_coord.append(curr_y)
+                z_coord.append(curr_z)
+                costs.append(-1 * curr_cost)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    cmhot = plt.get_cmap("RdYlGn")
+    cax = ax.scatter(x_coord, y_coord, z_coord, s=50, c=costs, cmap=cmhot)
+
+    plt.show()
 
 
 HUMAN_HEAD = np.array([0, 0, 1.8])
