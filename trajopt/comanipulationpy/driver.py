@@ -37,7 +37,7 @@ if __name__ == "__main__":
     enable_estop = False
     resume_safely = False
     execute_comanipulation = False
-    execute_baseline = False
+    execute_baseline = True
     robot = 'iiwa'
     collision_threshold = 0.25
     num_baselines = 4

@@ -966,20 +966,23 @@ void DistanceBaselineCostInfo::fromJson(const Value& v) {
   childFromJson(params, feet_pos,"feet_pos");
   childFromJson(params, coeffs,"coeffs");
 
-  string linkstr;
-  childFromJson(params, linkstr, "link");
-  link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstr);
-  if (!link) {
-    PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstr);
+  std::vector<string> linkstrs;
+  childFromJson(params, linkstrs, "links");
+  for (int i = 0; i < linkstrs.size(); i++) {
+    KinBody::LinkPtr link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstrs.at(i));
+    if (!link) {
+      PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstrs.at(i));
+    }
+    links.push_back(link);
   }
 
-  const char* all_fields[] = {"head_pos", "torso_pos", "feet_pos", "coeffs", "link"};
+  const char* all_fields[] = {"head_pos", "torso_pos", "feet_pos", "coeffs", "links"};
   ensure_only_members(params, all_fields, sizeof(all_fields)/sizeof(char*));
 
 }
 
 void DistanceBaselineCostInfo::hatch(TrajOptProb& prob) {
-  VectorOfVectorPtr f(new DistanceBaselineCostCalculator(head_pos, torso_pos, feet_pos, prob.GetRAD(), link));
+  VectorOfVectorPtr f(new DistanceBaselineCostCalculator(head_pos, torso_pos, feet_pos, prob.GetRAD(), links));
   if (term_type == TT_COST) {
     VectorXd coeffs_(1);
     coeffs_ << coeffs;

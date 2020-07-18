@@ -395,7 +395,7 @@ struct DistanceBaselineCostInfo : public TermInfo, public MakesCost, public Make
   Vector3d torso_pos;
   Vector3d feet_pos;
   double coeffs;
-  KinBody::LinkPtr link;
+  std::vector<KinBody::LinkPtr> links;
   void fromJson(const Value& v);
   void hatch(TrajOptProb& prob);
   DEFINE_CREATE(DistanceBaselineCostInfo);

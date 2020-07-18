@@ -526,29 +526,31 @@ VectorXd DistanceBaselineCostCalculator::operator()(const VectorXd& dof_vals) co
   // VectorXd err_vec(num_timesteps);
 
   for (int i = 0; i < num_timesteps; i++) {
+
     manip_->SetDOFValues(toDblVec(dof_vals.segment(i * 7, 7)));
-    VectorXd p_eef_t_ = toVector3d(link_->GetTransform().trans);
-    VectorXd vec_head_eef = head_pos_ - p_eef_t_;
-    double head_eef_cost = exp(-vec_head_eef.norm());
+    double curr_head_cost = 0;
+    double curr_torso_cost = 0;
 
-    double torso_eef_cost = 0;
+    for (int i = 0; i < links_.size(); i++) {
 
-    for (int j = 0; j < 20; j++) {
-      VectorXd torso_feet_sample = torso_pos_ + (i / 19) * (feet_pos_ - torso_pos_);
+      VectorXd curr_joints = toVector3d(links_.at(i)->GetTransform().trans);
+      VectorXd vec_head_eef = head_pos_ - curr_joints;
+      curr_head_cost = max(curr_head_cost, exp(-vec_head_eef.norm()));
 
-      double torso_eef_sample_dist = 2 * (torso_feet_sample - p_eef_t_).norm();
-      double torso_eef_sample_cost = exp(-torso_eef_sample_dist);
+      for (int j = 0; j < 20; j++) {
 
-      if (torso_eef_cost < torso_eef_sample_cost) {
-        torso_eef_cost = torso_eef_sample_cost;
+        VectorXd torso_feet_sample = torso_pos_ + (j / 19) * (feet_pos_ - torso_pos_);
+        double torso_joint_sample_dist = 2 * (torso_feet_sample - curr_joints).norm();
+        curr_torso_cost = max(curr_torso_cost, exp(-torso_joint_sample_dist));
+
       }
     }
 
-    err += max(head_eef_cost, torso_eef_cost);
-    if (isnan(max(head_eef_cost, torso_eef_cost))) {
+    err += max(curr_head_cost, curr_torso_cost);
+    if (isnan(max(curr_head_cost, curr_torso_cost))) {
       std::cout << "Error is NaN" << std::endl;
-      std::cout << head_eef_cost << std::endl;
-      std::cout << torso_eef_cost << std::endl;
+      std::cout << curr_head_cost << std::endl;
+      std::cout << curr_torso_cost << std::endl;
     }
 
   }

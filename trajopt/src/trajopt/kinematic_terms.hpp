@@ -253,16 +253,16 @@ struct SmoothingAccelCostCalculator : public VectorOfVector {
 // Distance baseline cost
 struct DistanceBaselineCostCalculator : public VectorOfVector {
   ConfigurationPtr manip_;
-  OR::KinBody::LinkPtr link_;
+  std::vector<OR::KinBody::LinkPtr> links_;
   Vector3d head_pos_;
   Vector3d torso_pos_;
   Vector3d feet_pos_;
-  DistanceBaselineCostCalculator(const Vector3d head_pos, const Vector3d torso_pos, const Vector3d feet_pos, ConfigurationPtr manip, OR::KinBody::LinkPtr link) :
+  DistanceBaselineCostCalculator(const Vector3d head_pos, const Vector3d torso_pos, const Vector3d feet_pos, ConfigurationPtr manip, std::vector<OR::KinBody::LinkPtr> links) :
     head_pos_(head_pos),
     torso_pos_(torso_pos),
     feet_pos_(feet_pos),
     manip_(manip),
-    link_(link) {}
+    links_(links) {}
   VectorXd operator()(const VectorXd& dof_vals) const;
 };
 struct DistanceBaselineCostPlotter : public Plotter {
