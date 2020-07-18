@@ -56,7 +56,7 @@ def distanceBaselineCostCalculator(human_head, human_torso, human_feet, robot_lo
 
     for i in range(20):
         torso_feet_sample = human_torso + (float(i)/19) * (human_feet - human_torso)
-        torso_distance = np.linalg.norm(2 * (torso_feet_sample - robot_loc))
+        torso_distance = np.linalg.norm(4 * (torso_feet_sample - robot_loc))
         curr_torso_cost = max(curr_torso_cost, exp(-1 * torso_distance))
     
     return max(curr_head_cost, curr_torso_cost)
@@ -64,9 +64,9 @@ def distanceBaselineCostCalculator(human_head, human_torso, human_feet, robot_lo
 
 def plotCostmap(human_head, human_torso, human_feet):
     
-    x_range = [-0.25, 0.25, 0.05]
-    y_range = [-0.25, 0.25, 0.05]
-    z_range = [0, 1.5, 0.1]
+    x_range = [-0.5, 0.5, 0.1]
+    y_range = [-0.5, 0.5, 0.1]
+    z_range = [0, 2.0, 0.1]
 
     x_coord = []
     y_coord = []

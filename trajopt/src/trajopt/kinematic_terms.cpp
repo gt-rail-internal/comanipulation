@@ -540,7 +540,7 @@ VectorXd DistanceBaselineCostCalculator::operator()(const VectorXd& dof_vals) co
       for (int j = 0; j < 20; j++) {
 
         VectorXd torso_feet_sample = torso_pos_ + (j / 19) * (feet_pos_ - torso_pos_);
-        double torso_joint_sample_dist = 2 * (torso_feet_sample - curr_joints).norm();
+        double torso_joint_sample_dist = 4 * (torso_feet_sample - curr_joints).norm();
         curr_torso_cost = max(curr_torso_cost, exp(-torso_joint_sample_dist));
 
       }
