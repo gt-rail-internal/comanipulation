@@ -159,7 +159,7 @@ class TrajectoryPlanner:
             req_util.add_distance_cost(request, self.complete_pred_traj_means_expanded,
                                        self.complete_pred_traj_vars_expanded, coeffs["distance"], self.n_human_joints, self.scene.all_links)
         if "distanceBaseline" in coeffs:
-            req_util.add_distance_baseline_cost(request, self.head_pos, self.torso_pos, self.feet_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["distanceBaseline"])
+            req_util.add_distance_baseline_cost(request, self.head_pos, self.torso_pos, self.feet_pos, self.scene.all_links, self.n_pred_timesteps, coeffs["distanceBaseline"])
         
         if "visibilityBaseline" in coeffs:
             req_util.add_visibility_baseline_cost(request, self.head_pos, object_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["visibilityBaseline"])
