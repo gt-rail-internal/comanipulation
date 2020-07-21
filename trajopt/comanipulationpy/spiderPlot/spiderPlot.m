@@ -11,7 +11,19 @@
 %D5 = [70.8 100 79.1859 -37.3079];  % Distant+Visible
 %E5 = [9.994, 0.00000000001, 0.6435, 0.72730];
 
-function [] = makeSpiderPlot(D1, E1, D2, E2, D3, E3, D4, E4, D5, E5)
+function [] = makeSpiderPlot(inputs)
+
+	D1 = inputs(1,1:end);
+	D2 = inputs(3,1:end);
+	D3 = inputs(5,1:end);
+	D4 = inputs(7,1:end);
+	D5 = inputs(9,1:end);
+	
+	E1 = inputs(2,1:end);
+	E2 = inputs(4,1:end);
+	E3 = inputs(6,1:end);
+	E4 = inputs(8,1:end);
+	E5 = inputs(10,1:end);
 
 	P = [D1; D2; D3; D4; D5];
 	E = [E1; E2; E3; E4; E5];

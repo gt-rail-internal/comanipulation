@@ -1,5 +1,6 @@
 import os
 import csv
+import matlab.engine
 
 def test_to_format(test_number, lines):
     """
@@ -8,7 +9,8 @@ def test_to_format(test_number, lines):
     test_number: line number in csv minus 2 (ignore column header and start index at 0)
     lines: all of the csv rows formatted as a list of strings
     """
-    
+    eng = matlab.engine.start_matlab()
+    eng.cd('spiderPlot', nargout=0)
     l = lines[test_number]
     matlab_inputs = []
     for i, t in zip(range(5), [0,2,3,4,1]):
@@ -33,10 +35,8 @@ def test_to_format(test_number, lines):
         # print("E" + str(i + 1) + " = [" + ' '.join([str(elem)+"," for elem in sds[:-1]]) + str(sds[-1]) + "];")
         avgs = []
         sds = []
-    
     print(matlab_inputs)
-
-    
+    eng.spiderPlot(matlab.double(matlab_inputs), nargout=0)
 
 
 def to_spider_plot_format():
