@@ -35,7 +35,6 @@ def test_to_format(test_number, lines):
         # print("E" + str(i + 1) + " = [" + ' '.join([str(elem)+"," for elem in sds[:-1]]) + str(sds[-1]) + "];")
         avgs = []
         sds = []
-    print(matlab_inputs)
     eng.spiderPlot(matlab.double(matlab_inputs), nargout=0)
 
 
@@ -49,5 +48,5 @@ def make_spider_plot():
     lines = []
     for line in file:
         lines.append(line)
-    lines = lines[1:]
+    lines = lines[-1]
     test_to_format(0, lines)
