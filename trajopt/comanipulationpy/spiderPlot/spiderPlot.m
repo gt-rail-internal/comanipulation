@@ -87,3 +87,4 @@ function [] = makeSpiderPlot(inputs)
 
 	% Legend settings
 	%legend('Ours', 'Legibility', 'Nominal Trajectory', 'Speed Control', 'Dist + Vis', 'Location', 'southoutside');
+	pause;

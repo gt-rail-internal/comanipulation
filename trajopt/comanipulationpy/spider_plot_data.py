@@ -39,7 +39,7 @@ def test_to_format(test_number, lines):
     eng.spiderPlot(matlab.double(matlab_inputs), nargout=0)
 
 
-def to_spider_plot_format():
+def make_spider_plot():
     """
     Takes the data from ExperimentResults and outputs the format of the data to create the graphs.
     Will be able to copy and paste the output to radar_test.m for graph creation.
@@ -51,5 +51,3 @@ def to_spider_plot_format():
         lines.append(line)
     lines = lines[1:]
     test_to_format(0, lines)
-
-to_spider_plot_format()
