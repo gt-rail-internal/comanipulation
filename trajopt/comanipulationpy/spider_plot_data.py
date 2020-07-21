@@ -10,6 +10,7 @@ def test_to_format(test_number, lines):
     """
     
     l = lines[test_number]
+    matlab_inputs = []
     for i, t in zip(range(5), [0,2,3,4,1]):
         avgs = []
         sds = []
@@ -26,10 +27,16 @@ def test_to_format(test_number, lines):
                 sd = min_sd
             avgs.append(avg)
             sds.append(sd)
-        print("D" + str(i + 1) + " = [" + ' '.join([str(elem) for elem in avgs]) + "];")
-        print("E" + str(i + 1) + " = [" + ' '.join([str(elem)+"," for elem in sds[:-1]]) + str(sds[-1]) + "];")
+        matlab_inputs.append([e for e in avgs])
+        matlab_inputs.append([e for e in sds])
+        # print("D" + str(i + 1) + " = [" + ' '.join([str(elem) for elem in avgs]) + "];")
+        # print("E" + str(i + 1) + " = [" + ' '.join([str(elem)+"," for elem in sds[:-1]]) + str(sds[-1]) + "];")
         avgs = []
         sds = []
+    
+    print(matlab_inputs)
+
+    
 
 
 def to_spider_plot_format():
