@@ -48,5 +48,5 @@ def make_spider_plot():
     lines = []
     for line in file:
         lines.append(line)
-    lines = lines[-1]
-    test_to_format(0, lines)
+    lines = lines[1:]
+    test_to_format(-1, lines)
