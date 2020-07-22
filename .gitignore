@@ -5,3 +5,5 @@ trajopt/comanipulationpy/trajectories/*
 *__pycache__*
 */.vscode/*
 .vscode/*
+trajopt/human_prob_models/scripts/csvFiles/ExperimentResults.csv
+trajopt/human_prob_models/scripts/csvFiles/TestingResults.csv
