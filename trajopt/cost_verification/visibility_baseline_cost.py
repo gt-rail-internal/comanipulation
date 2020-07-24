@@ -33,45 +33,20 @@ from mpl_toolkits.mplot3d import Axes3D
 def visibilityBaselineCostCalculator(human_head, object_pos, end_effector_pos):
 
     cost = 0
-    vec_head_obj = human_head - object_pos
-    vec_head_eef = human_head - end_effector_pos
-    cost = np.arccos(np.dot(vec_head_obj, vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
+    vec_head_obj = np.array(human_head - object_pos)
+    vec_head_eef = np.array(human_head - end_effector_pos)
+    dot_prod_gaze_eef = np.dot(vec_head_obj, vec_head_eef)
+    magnitute_of_vecs = np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)
+    cost = np.arccos(dot_prod_gaze_eef / magnitute_of_vecs)
     # print(end_effector_pos, cost)
 
     return cost
 
-# def t(p, q, r):
-#     x = p-q
-#     return np.dot(r-q, x)/np.dot(x, x)
-
-# def d(p, q, r):
-#     return np.linalg.norm(t(p, q, r)*(p-q)+q-r)
-
-def trial_visibilityBaselineCostCalculator(human_head, object_pos, end_effector_pos):
-
-    cost = 0
-    # vec_head_obj = human_head - object_pos
-    # vec_head_eef = human_head - end_effector_pos
-    # cost = np.arccos(np.dot(vec_head_obj, vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
-
-    direction_vec_head_obj = (object_pos - human_head) / np.linalg.norm(object_pos - human_head)
-    vec_head_eef = end_effector_pos - human_head
-    distance = np.dot(vec_head_eef, direction_vec_head_obj)
-    projection = human_head + distance * direction_vec_head_obj
-    cost = np.linalg.norm(projection - end_effector_pos)
-    cost += np.linalg.norm(end_effector_pos - human_head)
-    # print(end_effector_pos, projection, cost)
-
-    # cost = d(human_head, object_pos, end_effector_pos)
-
-    return cost
-
-
 def plotCostmap(human_head, object_pos):
     
     x_range = [-0.5, 0.5, 0.1]
-    y_range = [0, 0.5, 0.1]
-    z_range = [0.8, 2.1, 0.1]
+    y_range = [-0.5, 0.5, 0.1]
+    z_range = [0, 2.0, 0.1]
 
     x_coord = []
     y_coord = []
@@ -82,7 +57,7 @@ def plotCostmap(human_head, object_pos):
         for curr_y in np.arange(y_range[0], y_range[1], y_range[2]):
             for curr_z in np.arange(z_range[0], z_range[1], z_range[2]):
                 end_effector_pos = np.array([curr_x, curr_y, curr_z])
-                curr_cost = trial_visibilityBaselineCostCalculator(human_head, object_pos, end_effector_pos)
+                curr_cost = visibilityBaselineCostCalculator(human_head, object_pos, end_effector_pos)
                 x_coord.append(curr_x)
                 y_coord.append(curr_y)
                 z_coord.append(curr_z)
