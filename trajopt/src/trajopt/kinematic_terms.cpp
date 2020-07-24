@@ -389,7 +389,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
     d_eef_q(t) = (p_eef_t1 - p_eef_t).norm();
     
     // Calculate cost of path till (t + 1)
-    double c_s_q = d_eef_q.segment(0, t).sum();
+    double c_s_q = d_eef_q.segment(0, t+1).sum();
     // Calculate cost of optimal path from (t + 1) to goal
     double cstar_q_g = (p_eef_g - p_eef_t1).norm();
     // Calculate probability of goal given path till (t + 1)

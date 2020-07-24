@@ -2,9 +2,10 @@ from trajectory_framework import TrajectoryFramework
 from tests import Test
 from metrics import print_metrics, metrics_to_csv, save_experiments
 import numpy as np
+from spider_plot_data import make_spider_plot 
 
 
-def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, 
+def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, plot_baselines,
                                 enable_estop, resume_safely, collision_threshold, num_baselines, num_metrics):
     comanipulationFramework = TrajectoryFramework(robot, '', enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
     comanipulationFramework.scene.robot.SetDOFValues(joint_start, comanipulationFramework.scene.manipulator.GetArmIndices())
@@ -22,6 +23,8 @@ def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execu
 
     test_case = ''.join(str(test) + ", " for test in trajectories)
     save_experiments(test_case[:-2], all_comanipulation_metrics, all_baseline_metrics)
+    if plot_baselines:
+        make_spider_plot()
     
 
 if __name__ == "__main__":
@@ -34,15 +37,16 @@ if __name__ == "__main__":
     #jaco
     # joint_start = [3.941421366763722, 2.840465567025116, 0.0016481772134505363, 0.7576862412004652, -1.6470106708707843, 4.495901148004366, -1.2516118096169921]
     # joint_target = [4.871800476914653, 1.895875884203746, 4.728695515739245, 1.2668175273349631, 4.713923493804794, 4.641769937759059, 5.034508434241916]
-    trajectories = [120]
+    trajectories = [120, 124, 144, 204, 240]
     enable_estop = False
     resume_safely = False
     execute_comanipulation = False
-    execute_baseline = True
+    execute_baseline = False
+    plot_baselines = True
     robot = 'iiwa'
     collision_threshold = 0.25
     num_baselines = 4
     num_metrics = 4
     ###############################################
-    analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, enable_estop, 
+    analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, plot_baselines, enable_estop, 
                                 resume_safely, collision_threshold, num_baselines, num_metrics)
