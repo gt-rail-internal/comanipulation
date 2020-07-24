@@ -75,7 +75,7 @@ class Test:
         self.framework.trajectory_solver.n_pred_timesteps = 20
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "legibility": 10000000.0,
+            "legibilityBaseline": 10000000.0,
             # "regularize": [10.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025])
             # "smoothing": dict(cost=10, type=2)

@@ -294,6 +294,21 @@ struct VisibilityBaselineCostPlotter : public Plotter {
   void Plot(const DblVec& x, OR::EnvironmentBase& env, std::vector<OR::GraphHandlePtr>& handles);
 };
 
+struct LegibilityBaselineCostCalculator : public VectorOfVector {
+  ConfigurationPtr manip_;
+  OR::KinBody::LinkPtr link_;
+  LegibilityCostCalculator(ConfigurationPtr manip, OR::KinBody::LinkPtr link) :
+    manip_(manip),
+    link_(link) {}
+  VectorXd operator()(const VectorXd& dof_vals) const;
+};
+struct LegibilityCostPlotter : public Plotter {
+  boost::shared_ptr<void> m_calc; //actually points to a CartPoseErrCalculator = CartPoseCost::f_
+  VarVector m_vars;
+  LegibilityCostPlotter(boost::shared_ptr<void> calc, const VarVector& vars) : m_calc(calc), m_vars(vars) {}
+  void Plot(const DblVec& x, OR::EnvironmentBase& env, std::vector<OR::GraphHandlePtr>& handles);
+};
+
 //////////////////////
 // END Baseline Costs
 //////////////////////
