@@ -4,6 +4,7 @@ import scene_utils
 import metrics
 import traj_utils
 import sys
+import trajoptpy
 
 class Test:
     def __init__(self, robot_type, init_joint, final_joint, plot='', traj_num=303, execute=False, enable_estop=False, resume_safely=False, collision_threshold=0.25):
@@ -36,8 +37,8 @@ class Test:
 
         num_timesteps = self.framework.trajectory_solver.n_pred_timesteps
         coeffs = {
-            "distanceBaseline": 5,
-            "visibilityBaseline": 5,
+            "distanceBaseline": 20,
+            "visibilityBaseline": 1.5,
             "regularize": [1.0 for _ in range(num_timesteps - 1)],
             "collision": dict(cost=[20], dist_pen=[0.025]),
             "smoothing": dict(cost=10, type=2)
@@ -158,7 +159,9 @@ class Test:
     def run_all_baselines(self):
         metrics = []
         print("Distance + Visibility Baseline: ")
+        # trajoptpy.SetInteractive(True)
         metrics.append(self.distance_visibility_test(plot=self.plot))
+        # trajoptpy.SetInteractive(False)
 
         print("Legibility Baseline: ")
         metrics.append(self.legibility_test(plot=self.plot))
