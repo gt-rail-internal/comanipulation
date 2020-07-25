@@ -144,6 +144,17 @@ def add_visibility_baseline_cost(request, head_pos, obj_pos, link, num_timesteps
     request["costs"].append(dist_baseline_cost)
     return request
 
+def add_legibility_baseline_cost(request, coeffs, link):
+    if "costs" not in request:
+        request["costs"] = []
+    for cost in request["costs"]:
+        if cost["type"] == "legibility_baseline_cost":
+            print("ERROR: Legibility Baseline cost already present in request")
+            return request
+    leg_cost = {"type" : "legibility_baseline_cost", "params" : {"link" : link, "coeffs" : coeffs}}
+    request["costs"].append(leg_cost)
+    return request
+
 
 def add_regularize_cost(request, coeffs, link):
     if "costs" not in request:

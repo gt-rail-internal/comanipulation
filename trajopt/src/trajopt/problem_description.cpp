@@ -62,6 +62,7 @@ void RegisterMakers() {
   // Co-manipulation baseline costs
   TermInfo::RegisterMaker("distance_baseline_cost", &DistanceBaselineCostInfo::create);
   TermInfo::RegisterMaker("visibility_baseline_cost", &VisibilityBaselineCostInfo::create);
+  TermInfo::RegisterMaker("legibility_baseline_cost", &LegibilityBaselineCostInfo::create);
 
   TermInfo::RegisterMaker("joint", &JointConstraintInfo::create);
   TermInfo::RegisterMaker("cart_vel", &CartVelCntInfo::create);
@@ -1028,6 +1029,39 @@ void VisibilityBaselineCostInfo::hatch(TrajOptProb& prob) {
 
 }
 
+// Cost info for legibility - distance in 1 timestep
+void LegibilityBaselineCostInfo::fromJson(const Value& v) {
+  FAIL_IF_FALSE(v.isMember("params"));
+  const Value& params = v["params"];
+  childFromJson(params, coeffs, "coeffs");
+
+  string linkstr;
+  childFromJson(params, linkstr, "link");
+  link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstr);
+  if (!link) {
+    PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstr);
+  }
+
+  const char* all_fields[] = {"coeffs", "link"};
+  ensure_only_members(params, all_fields, sizeof(all_fields)/sizeof(char*));
+
+}
+
+void LegibilityBaselineCostInfo::hatch(TrajOptProb& prob) {
+  VectorOfVectorPtr f(new LegibilityBaselineCostCalculator(prob.GetRAD(), link));
+  if (term_type == TT_COST) {
+    VectorXd coeffs_(1);
+    coeffs_ << coeffs;
+    prob.addCost(CostPtr(new CostFromErrFunc(f, prob.GetVarsAsVec(), coeffs_, ABS, name)));
+  }
+  // else if (term_type == TT_CNT) {
+  //   prob.addConstraint(ConstraintPtr(new ConstraintFromFunc(f, prob.GetVarRow(timestep), concat(rot_coeffs, pos_coeffs), EQ, name)));
+  // }
+
+  // prob.GetPlotter()->Add(PlotterPtr(new LegibilityCostPlotter(f, prob.GetVarsAsVec())));
+  // prob.GetPlotter()->AddLink(link);
+
+}
 
 //////////////////////
 // END Baseline Costs

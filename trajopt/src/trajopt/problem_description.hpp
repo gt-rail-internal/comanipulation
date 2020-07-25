@@ -412,6 +412,13 @@ struct VisibilityBaselineCostInfo : public TermInfo, public MakesCost, public Ma
   DEFINE_CREATE(VisibilityBaselineCostInfo);
 };
 
+struct LegibilityBaselineCostInfo : public TermInfo, public MakesCost, public MakesConstraint {
+  double coeffs;
+  KinBody::LinkPtr link;
+  void fromJson(const Value& v);
+  void hatch(TrajOptProb& prob);
+  DEFINE_CREATE(LegibilityBaselineCostInfo);
+};
 
 //////////////////////
 // END Baseline Costs

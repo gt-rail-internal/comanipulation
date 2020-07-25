@@ -379,7 +379,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
   // For every timestep (upto T - 1)
   for (int t = 0; t < num_timesteps - 1; t++) {
     // Update scaling factor
-    f_t(t) = 1.0 - ((double)t/(double)num_timesteps);
+    f_t(t) = num_timesteps - t;
 
     // Calulcate length of segment and store
     manip_->SetDOFValues(toDblVec(dof_vals.segment(t * 7, 7)));
@@ -608,10 +608,62 @@ VectorXd VisibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) 
 //   PlotAxes(env, target, .05,  handles);
 //   handles.push_back(env.drawarrow(cur.trans, target.trans, .005, OR::Vector(1,0,1,1)));
 // }
+VectorXd LegibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) const {
+
+  int num_timesteps = dof_vals.size() / 7;
+
+  // length of segment from t to t+1
+  VectorXd d_eef_q(num_timesteps - 1);
+  // total cost
+  double err = 0;
+  // scaling function
+  VectorXd f_t(num_timesteps - 1);
+  // regularizer constant
+  double lambda = 0.5;
+
+  // Get cost of optimal traj from Start to Goal of optimal traj
+  manip_->SetDOFValues(toDblVec(dof_vals.segment((num_timesteps - 1) * 7, 7)));
+  VectorXd p_eef_g = toVector3d(link_->GetTransform().trans);
+  manip_->SetDOFValues(toDblVec(dof_vals.segment(0, 7)));
+  VectorXd p_eef_s = toVector3d(link_->GetTransform().trans);
+  double cstar_s_g = (p_eef_g - p_eef_s).norm();
+
+  // For every timestep (upto T - 1)
+  for (int t = 0; t < num_timesteps - 1; t++) {
+    // Update scaling factor
+    f_t(t) = num_timesteps - t;
+
+    // Calulcate length of segment and store
+    manip_->SetDOFValues(toDblVec(dof_vals.segment(t * 7, 7)));
+    VectorXd p_eef_t = toVector3d(link_->GetTransform().trans);
+    manip_->SetDOFValues(toDblVec(dof_vals.segment((t + 1) * 7, 7)));
+    VectorXd p_eef_t1 = toVector3d(link_->GetTransform().trans);
+    d_eef_q(t) = (p_eef_t1 - p_eef_t).norm();
+    
+    // Calculate cost of path till (t + 1)
+    double c_s_q = d_eef_q.segment(0, t).sum();
+    // Calculate cost of optimal path from (t + 1) to goal
+    double cstar_q_g = (p_eef_g - p_eef_t1).norm();
+    // Calculate probability of goal given path till (t + 1)
+    double prob_g_given_q = exp(-c_s_q - cstar_q_g)/exp(-cstar_s_g);
+    // accumulate error as product of prob and scaling function
+    err += prob_g_given_q * f_t(t);
+  }
+  // divide error by sum of scaling function and subtract regularizer
+  err = (err / f_t.sum()) - (lambda * d_eef_q.sum());
+
+  // reformat error as vector
+  VectorXd err_vec(1);
+  err_vec << err;
+
+  // std::cout << "Error: " << err << std::endl;
+  return err_vec;
+}
 
 //////////////////////
 // END Baseline Costs
 //////////////////////
+
 
 
 }

@@ -342,7 +342,7 @@ def compute_legibility_metric(scene, robot_traj):
     num_timesteps = np.array(robot_traj).shape[0]
     eef_pos_dist = np.zeros((num_timesteps - 1))
     legibility = 0.0
-    f_t = np.linspace(1, 1.0/num_timesteps, num_timesteps - 1) # np.ones((num_timesteps - 1)) # f_t allows different weighting of the average
+    f_t = np.ones((num_timesteps - 1)) # f_t allows different weighting of the average
 
     eef_goal_pos = scene.get_eef_position(robot_traj[-1])
     eef_start_pos = scene.get_eef_position(robot_traj[0])
@@ -350,6 +350,7 @@ def compute_legibility_metric(scene, robot_traj):
     start_goal_dist = np.linalg.norm(eef_goal_pos - eef_start_pos)
 
     for i in range(num_timesteps - 1):
+        f_t[i] = num_timesteps - i #f(t) = T - t where T is the complete time period
         curr_eef_pos = scene.get_eef_position(robot_traj[i])
         next_eef_pos = scene.get_eef_position(robot_traj[i + 1])
         eef_pos_dist[i] = np.linalg.norm(next_eef_pos - curr_eef_pos)
