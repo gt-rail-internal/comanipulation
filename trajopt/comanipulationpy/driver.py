@@ -1,6 +1,6 @@
 from trajectory_framework import TrajectoryFramework
 from tests import Test
-from metrics import print_metrics, metrics_to_csv, save_experiments
+from metrics import print_metrics, metrics_to_csv, save_experiments, metric_print_helper
 import numpy as np
 from spider_plot_data import make_spider_plot 
 
@@ -13,13 +13,21 @@ def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execu
     all_comanipulation_metrics = np.zeros((num_metrics, len(trajectories)))
     all_baseline_metrics = np.zeros((num_baselines, num_metrics, len(trajectories)))
 
+    dist_vis_metrics = np.zeros((num_metrics, len(trajectories)))
+
+    # for trajIndex, trajectory in enumerate(trajectories):
+    #     all_comanipulation_metrics[:, trajIndex] = comanipulationFramework.setup_test(joint_start, joint_target, traj_num=trajectory, execute=execute_comanipulation)
+        # baselineTest = Test(robot,joint_start, joint_target, traj_num=trajectory, execute=execute_baseline, 
+        #                 enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
+    #     all_baseline_metrics[:, :, trajIndex] = baselineTest.run_all_baselines()
+    #     metrics_to_csv(trajectory, all_comanipulation_metrics[:, trajIndex], all_baseline_metrics[:, :, trajIndex])
+    # print_metrics(all_comanipulation_metrics, all_baseline_metrics)
+    # metric_print_helper(all_comanipulation_metrics, "Our Metrics")
+
     for trajIndex, trajectory in enumerate(trajectories):
-        all_comanipulation_metrics[:, trajIndex] = comanipulationFramework.setup_test(joint_start, joint_target, traj_num=trajectory, execute=execute_comanipulation)
+        dist_vis_metrics[:, trajIndex] = 
         baselineTest = Test(robot,joint_start, joint_target, traj_num=trajectory, execute=execute_baseline, 
                         enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
-        all_baseline_metrics[:, :, trajIndex] = baselineTest.run_all_baselines()
-        metrics_to_csv(trajectory, all_comanipulation_metrics[:, trajIndex], all_baseline_metrics[:, :, trajIndex])
-    print_metrics(all_comanipulation_metrics, all_baseline_metrics)
 
     test_case = ''.join(str(test) + ", " for test in trajectories)
     save_experiments(test_case[:-2], all_comanipulation_metrics, all_baseline_metrics)

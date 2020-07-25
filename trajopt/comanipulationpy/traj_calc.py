@@ -7,6 +7,7 @@ import metrics
 import plots
 import json
 import trajoptpy
+# trajoptpy.SetInteractive(True)
 
 from scipy.interpolate import CubicSpline
 

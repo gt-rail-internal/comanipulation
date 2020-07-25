@@ -48,7 +48,7 @@ from human_traj_display.srv import ExecuteHumanTraj
 # Send a trajectory to controller
 class FollowTrajectoryClient(object):
 
-    def __init__(self, name, joint_names, is_action_server=True):
+    def __init__(self, name, joint_names):
         self.client = actionlib.SimpleActionClient("%s/follow_joint_trajectory" % name,
                                                 FollowJointTrajectoryAction)
         rospy.loginfo("Waiting for %s..." % name)
