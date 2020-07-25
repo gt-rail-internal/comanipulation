@@ -155,12 +155,12 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.10
     }
 
     robot_link_info = {
-        0: [20, 0.1],
-        1: [20, 0.1],
-        2: [20, 0.1],
-        3: [20, 0.1],
-        4: [20, 0.1],
-        5: [20, 0.2],
+        0: [20, 0.15],
+        1: [20, 0.15],
+        2: [20, 0.15],
+        3: [20, 0.15],
+        4: [20, 0.15],
+        5: [20, 0.15],
     }
 
     human_pos = np.array(human_pos)

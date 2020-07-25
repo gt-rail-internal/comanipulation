@@ -40,8 +40,8 @@ if __name__ == "__main__":
     trajectories = [120, 124, 144, 204, 240]
     enable_estop = False
     resume_safely = False
-    execute_comanipulation = False
-    execute_baseline = False
+    execute_comanipulation = True
+    execute_baseline = True
     plot_baselines = True
     robot = 'iiwa'
     collision_threshold = 0.25
