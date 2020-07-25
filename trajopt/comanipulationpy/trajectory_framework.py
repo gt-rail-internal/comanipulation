@@ -143,12 +143,12 @@ class TrajectoryFramework:
 
         coeffs = {
             "nominal": 100.0,
-            "distance": [5000.0 for _ in range(num_timesteps)],
-            "visibility": [5 for _ in range(num_timesteps)],
-            "regularize": [5.0 for _ in range(num_timesteps - 1)],
-            "legibility": 100000.0,
+            "distance": [2000.0 for _ in range(num_timesteps)],
+            "visibility": [0.3 for _ in range(num_timesteps)],
+            "regularize": [7.0 for _ in range(num_timesteps - 1)],
+            "legibility": 2000.0,
             "collision": dict(cost=[20], dist_pen=[0.025]),
-            "smoothing": dict(cost=200, type=2)
+            "smoothing": dict(cost=300, type=2)
         }
 
         if traj_num > 0 and not self.is_real:

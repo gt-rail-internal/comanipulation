@@ -127,8 +127,8 @@ def get_visibility_angle(scene, head_pos, robot_joints, object_pos):
     return math.acos(vec_head_obj.dot(vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
 
 
-def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05, 
-        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5, plot=False):
+def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.10, 
+        human_sphere_num=10, robot_sphere_radius=0.10, robot_sphere_num=10, plot=False):
     """
     Returns the minimum separation distance between a human and a robot.
 
@@ -141,6 +141,28 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
     robot_sphere_num: number of spheres per link for the robot
     """
 
+    human_link_info = {
+        0: [20, 0.1],
+        1: [20, 0.1],
+        2: [10, 0.1],
+        3: [20, 0.1],
+        4: [10, 0.1],
+        5: [20, 0.2],
+        6: [20, 0.1],
+        7: [20, 0.1],
+        8: [20, 0.1],
+        9: [10, 0.1]
+    }
+
+    robot_link_info = {
+        0: [20, 0.15],
+        1: [20, 0.15],
+        2: [20, 0.15],
+        3: [20, 0.15],
+        4: [20, 0.15],
+        5: [20, 0.15],
+    }
+
     human_pos = np.array(human_pos)
     robot_joints_pos = scene.performFK(robot_joints)
     robot_joints_pos = np.array(robot_joints_pos)
@@ -152,13 +174,13 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
 
     distance = float('inf')
 
-    for curr_human_link in HUMAN_LINKS:
+    for human_link_index, curr_human_link in enumerate(HUMAN_LINKS):
+        curr_human_sphere_num, curr_human_sphere_radius = human_link_info[human_link_index]
         human_link_start = human_pos[3*curr_human_link[0]:3*(1+curr_human_link[0])]
         human_link_end = human_pos[3*curr_human_link[1]:3*(1+curr_human_link[1])]
-        human_sphere_sep = (human_link_end - human_link_start)/human_sphere_num
+        human_sphere_sep = (human_link_end - human_link_start)/curr_human_sphere_num
         # create human_sphere_num spheres equally spaced along each human link
-        human_spheres_centers = [human_link_start + i *
-                                 human_sphere_sep for i in range(human_sphere_num)]
+        human_spheres_centers = [human_link_start + i * human_sphere_sep for i in range(curr_human_sphere_num)]
         
         if plot:
             humanXLine = np.linspace(human_link_start[0], human_link_end[0], 25)
@@ -168,15 +190,15 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
             for center in human_spheres_centers:
                 plotter.scatter([center[0]], [center[1]], [center[2]], c='y')
 
-        for curr_robot_link in ROBOT_LINKS:
+        for robot_link_index, curr_robot_link in enumerate(ROBOT_LINKS):
+            curr_robot_sphere_num, curr_robot_sphere_radius = robot_link_info[robot_link_index]
             robot_link_start = robot_joints_pos[3 *
                                                 curr_robot_link[0]:3*(1+curr_robot_link[0])]
             robot_link_end = robot_joints_pos[3 *
                                               curr_robot_link[1]:3*(1+curr_robot_link[1])]
-            robot_sphere_sep = (robot_link_end - robot_link_start)/robot_sphere_num
+            robot_sphere_sep = (robot_link_end - robot_link_start)/curr_robot_sphere_num
             # create robot_sphere_num spheres equally spaced along each robot link
-            robot_spheres_centers = [robot_link_start + i *
-                                     robot_sphere_sep for i in range(robot_sphere_num)]
+            robot_spheres_centers = [robot_link_start + i * robot_sphere_sep for i in range(curr_robot_sphere_num)]
 
             if plot:
                 robotXLine = np.linspace(robot_link_start[0], robot_link_end[0], 25)
@@ -190,7 +212,7 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
                 for robot_sphere_center in robot_spheres_centers:
                     center_dist = calculate_distance_3d(
                         human_sphere_center, robot_sphere_center)
-                    curr_distance = center_dist - human_sphere_radius - robot_sphere_radius
+                    curr_distance = center_dist - curr_human_sphere_radius - curr_robot_sphere_radius
                     distance = min(distance, curr_distance)
     if plot:
         plt.show()
