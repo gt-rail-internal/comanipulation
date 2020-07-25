@@ -417,7 +417,7 @@ struct LegibilityBaselineCostInfo : public TermInfo, public MakesCost, public Ma
   KinBody::LinkPtr link;
   void fromJson(const Value& v);
   void hatch(TrajOptProb& prob);
-  DEFINE_CREATE(LegibilityCostInfo);
+  DEFINE_CREATE(LegibilityBaselineCostInfo);
 };
 
 //////////////////////

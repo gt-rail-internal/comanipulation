@@ -62,7 +62,7 @@ void RegisterMakers() {
   // Co-manipulation baseline costs
   TermInfo::RegisterMaker("distance_baseline_cost", &DistanceBaselineCostInfo::create);
   TermInfo::RegisterMaker("visibility_baseline_cost", &VisibilityBaselineCostInfo::create);
-TermInfo::RegisterMaker("legibility_baseline_cost", &Legibility_BaselineCostInfo::create);
+  TermInfo::RegisterMaker("legibility_baseline_cost", &LegibilityBaselineCostInfo::create);
 
   TermInfo::RegisterMaker("joint", &JointConstraintInfo::create);
   TermInfo::RegisterMaker("cart_vel", &CartVelCntInfo::create);

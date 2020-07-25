@@ -165,7 +165,7 @@ class TrajectoryPlanner:
             req_util.add_visibility_baseline_cost(request, self.head_pos, object_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["visibilityBaseline"])
 
         if "legibilityBaseline" in coeffs:
-            req_util.add_legibility_cost(
+            req_util.add_legibility_baseline_cost(
                 request, coeffs["legibilityBaseline"], self.scene.eef_link_name)
         if "collision" in coeffs:
             req_util.add_collision_cost(

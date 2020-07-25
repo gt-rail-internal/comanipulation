@@ -619,7 +619,7 @@ VectorXd LegibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) 
   // scaling function
   VectorXd f_t(num_timesteps - 1);
   // regularizer constant
-  double lambda = 1.5;
+  double lambda = 0.5;
 
   // Get cost of optimal traj from Start to Goal of optimal traj
   manip_->SetDOFValues(toDblVec(dof_vals.segment((num_timesteps - 1) * 7, 7)));
@@ -641,7 +641,7 @@ VectorXd LegibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) 
     d_eef_q(t) = (p_eef_t1 - p_eef_t).norm();
     
     // Calculate cost of path till (t + 1)
-    double c_s_q = d_eef_q.segment(0, t+1).sum();
+    double c_s_q = d_eef_q.segment(0, t).sum();
     // Calculate cost of optimal path from (t + 1) to goal
     double cstar_q_g = (p_eef_g - p_eef_t1).norm();
     // Calculate probability of goal given path till (t + 1)
@@ -659,6 +659,7 @@ VectorXd LegibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) 
   // std::cout << "Error: " << err << std::endl;
   return err_vec;
 }
+
 //////////////////////
 // END Baseline Costs
 //////////////////////
