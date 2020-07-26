@@ -1,9 +1,8 @@
-trajopt/build/*
+**/build
 trajopt/build_trajopt/*
-trajopt/comanipulationpy/trajectories/*
+co-manipulation/comanipulationpy/src/metrics
+co-manipulation/comanipulationpy/src/plots
+co-manipulation/comanipulationpy/src/trajectories
 *.pyc
-*__pycache__*
-*/.vscode/*
-.vscode/*
-trajopt/human_prob_models/scripts/csvFiles/ExperimentResults.csv
-trajopt/human_prob_models/scripts/csvFiles/TestingResults.csv
+**/__pycache__
+**/.vscode
