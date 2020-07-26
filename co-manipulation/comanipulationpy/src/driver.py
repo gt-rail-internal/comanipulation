@@ -6,8 +6,8 @@ from spider_plot_data import make_spider_plot
 
 
 def analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, plot_baselines,
-                                enable_estop, resume_safely, collision_threshold, num_baselines, num_metrics):
-    comanipulationFramework = TrajectoryFramework(robot, '', enable_estop=enable_estop, resume_safely=resume_safely, collision_threshold=collision_threshold)
+                                num_baselines, num_metrics):
+    comanipulationFramework = TrajectoryFramework(robot, '')
     comanipulationFramework.scene.robot.SetDOFValues(joint_start, comanipulationFramework.scene.manipulator.GetArmIndices())
 
     all_comanipulation_metrics = np.zeros((num_metrics, len(trajectories)))
@@ -42,15 +42,12 @@ if __name__ == "__main__":
     # joint_target = [4.871800476914653, 1.895875884203746, 4.728695515739245, 1.2668175273349631, 4.713923493804794, 4.641769937759059, 5.034508434241916]
     trajectories = [120, 124, 144, 204, 240]
     # trajectories = [520, 524, 544, 604, 640] #Stationary case
-    enable_estop = False
-    resume_safely = False
     execute_comanipulation = False
     execute_baseline = False
     plot_baselines = True
     robot = 'iiwa'
-    collision_threshold = 0.25
     num_baselines = 4
     num_metrics = 4
     ###############################################
-    analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, execute_baseline, plot_baselines, enable_estop, 
-                                resume_safely, collision_threshold, num_baselines, num_metrics)
+    analyze_multiple_trajectories(trajectories, joint_start, joint_target, execute_comanipulation, 
+        execute_baseline, plot_baselines, num_baselines, num_metrics)

@@ -138,13 +138,17 @@ class TrajectoryPlanner:
         coeffs: A dictionary containing information on weights. All keys are optional.
         Valid keys are 
             "distance": array of length num_timesteps
+            "distanceBaseline": array of length num_timesteps
             "collision": a dictionary mapping 'cost' and 'dist_pen' to number arrays
             "nominal": number
             "regularize": array of length num_timesteps - 1
             "smoothing": dictionary mapping 'cost' and 'type' to a number and an int, respectively
-            "velocity": array of length num_timesteps
+            "velocity": array of length num_timesteps (this is a CoMOTO cost, not the trajopt joint velocity cost)
             "visibility": array of length num_timesteps
+            "visibilityBaseline": array of length num_timesteps
             "legibility": number
+            "legibilityBaseline": number
+            "joint_vel": number or [number] of length 1. This is the trajopt joint velocity cost.
         object_pos: The position of the object of interest to the person. Only needed for
             visiblity cost
         """

@@ -42,7 +42,7 @@ class Test:
 
         result, eef_traj = self.framework.trajectory_solver.solve_traj_save_plot_exec(self.init_joint, 
                 self.final_joint, coeffs=coeffs, plot=plot, execute=self.execute, 
-                save='trajectories/distance.txt', enable_estop=self.enable_estop, resume_safely=self.resume_safely, collision_threshold=self.collision_threshold)
+                save='trajectories/distance.txt')
         default_traj, _ = self.framework.trajectory_solver.get_default_traj(self.init_joint, self.final_joint, self.framework.trajectory_solver.n_pred_timesteps)
         
         # print("Head pos = " + str(self.framework.trajectory_solver.head_pos))
