@@ -113,7 +113,7 @@ def add_optimal_trajectory_cost(request, target_eef_traj, link, num_timesteps, c
     return request
 
 
-def add_distance_baseline_cost(request, head_pos, torso_pos, feet_pos, link, num_timesteps, coeffs):
+def add_distance_baseline_cost(request, head_pos, torso_pos, feet_pos, links, num_timesteps, coeffs):
     if "costs" not in request:
         request["costs"] = []
     for cost in request["costs"]:
@@ -124,7 +124,7 @@ def add_distance_baseline_cost(request, head_pos, torso_pos, feet_pos, link, num
     dist_baseline_cost["params"]["head_pos"] = head_pos
     dist_baseline_cost["params"]["torso_pos"] = torso_pos
     dist_baseline_cost["params"]["feet_pos"] = feet_pos
-    dist_baseline_cost["params"]["link"] = link
+    dist_baseline_cost["params"]["links"] = links
     dist_baseline_cost["params"]["coeffs"] = coeffs
     request["costs"].append(dist_baseline_cost)
     return request
@@ -142,6 +142,17 @@ def add_visibility_baseline_cost(request, head_pos, obj_pos, link, num_timesteps
     dist_baseline_cost["params"]["link"] = link
     dist_baseline_cost["params"]["coeffs"] = coeffs
     request["costs"].append(dist_baseline_cost)
+    return request
+
+def add_legibility_baseline_cost(request, coeffs, link):
+    if "costs" not in request:
+        request["costs"] = []
+    for cost in request["costs"]:
+        if cost["type"] == "legibility_baseline_cost":
+            print("ERROR: Legibility Baseline cost already present in request")
+            return request
+    leg_cost = {"type" : "legibility_baseline_cost", "params" : {"link" : link, "coeffs" : coeffs}}
+    request["costs"].append(leg_cost)
     return request
 
 

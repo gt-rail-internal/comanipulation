@@ -62,6 +62,7 @@ void RegisterMakers() {
   // Co-manipulation baseline costs
   TermInfo::RegisterMaker("distance_baseline_cost", &DistanceBaselineCostInfo::create);
   TermInfo::RegisterMaker("visibility_baseline_cost", &VisibilityBaselineCostInfo::create);
+  TermInfo::RegisterMaker("legibility_baseline_cost", &LegibilityBaselineCostInfo::create);
 
   TermInfo::RegisterMaker("joint", &JointConstraintInfo::create);
   TermInfo::RegisterMaker("cart_vel", &CartVelCntInfo::create);
@@ -966,20 +967,23 @@ void DistanceBaselineCostInfo::fromJson(const Value& v) {
   childFromJson(params, feet_pos,"feet_pos");
   childFromJson(params, coeffs,"coeffs");
 
-  string linkstr;
-  childFromJson(params, linkstr, "link");
-  link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstr);
-  if (!link) {
-    PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstr);
+  std::vector<string> linkstrs;
+  childFromJson(params, linkstrs, "links");
+  for (int i = 0; i < linkstrs.size(); i++) {
+    KinBody::LinkPtr link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstrs.at(i));
+    if (!link) {
+      PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstrs.at(i));
+    }
+    links.push_back(link);
   }
 
-  const char* all_fields[] = {"head_pos", "torso_pos", "feet_pos", "coeffs", "link"};
+  const char* all_fields[] = {"head_pos", "torso_pos", "feet_pos", "coeffs", "links"};
   ensure_only_members(params, all_fields, sizeof(all_fields)/sizeof(char*));
 
 }
 
 void DistanceBaselineCostInfo::hatch(TrajOptProb& prob) {
-  VectorOfVectorPtr f(new DistanceBaselineCostCalculator(head_pos, torso_pos, feet_pos, prob.GetRAD(), link));
+  VectorOfVectorPtr f(new DistanceBaselineCostCalculator(head_pos, torso_pos, feet_pos, prob.GetRAD(), links));
   if (term_type == TT_COST) {
     VectorXd coeffs_(1);
     coeffs_ << coeffs;
@@ -1025,6 +1029,39 @@ void VisibilityBaselineCostInfo::hatch(TrajOptProb& prob) {
 
 }
 
+// Cost info for legibility - distance in 1 timestep
+void LegibilityBaselineCostInfo::fromJson(const Value& v) {
+  FAIL_IF_FALSE(v.isMember("params"));
+  const Value& params = v["params"];
+  childFromJson(params, coeffs, "coeffs");
+
+  string linkstr;
+  childFromJson(params, linkstr, "link");
+  link = GetLinkMaybeAttached(gPCI->rad->GetRobot(), linkstr);
+  if (!link) {
+    PRINT_AND_THROW(boost::format("invalid link name: %s")%linkstr);
+  }
+
+  const char* all_fields[] = {"coeffs", "link"};
+  ensure_only_members(params, all_fields, sizeof(all_fields)/sizeof(char*));
+
+}
+
+void LegibilityBaselineCostInfo::hatch(TrajOptProb& prob) {
+  VectorOfVectorPtr f(new LegibilityBaselineCostCalculator(prob.GetRAD(), link));
+  if (term_type == TT_COST) {
+    VectorXd coeffs_(1);
+    coeffs_ << coeffs;
+    prob.addCost(CostPtr(new CostFromErrFunc(f, prob.GetVarsAsVec(), coeffs_, ABS, name)));
+  }
+  // else if (term_type == TT_CNT) {
+  //   prob.addConstraint(ConstraintPtr(new ConstraintFromFunc(f, prob.GetVarRow(timestep), concat(rot_coeffs, pos_coeffs), EQ, name)));
+  // }
+
+  // prob.GetPlotter()->Add(PlotterPtr(new LegibilityCostPlotter(f, prob.GetVarsAsVec())));
+  // prob.GetPlotter()->AddLink(link);
+
+}
 
 //////////////////////
 // END Baseline Costs

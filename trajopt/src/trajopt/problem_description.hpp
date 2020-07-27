@@ -395,7 +395,7 @@ struct DistanceBaselineCostInfo : public TermInfo, public MakesCost, public Make
   Vector3d torso_pos;
   Vector3d feet_pos;
   double coeffs;
-  KinBody::LinkPtr link;
+  std::vector<KinBody::LinkPtr> links;
   void fromJson(const Value& v);
   void hatch(TrajOptProb& prob);
   DEFINE_CREATE(DistanceBaselineCostInfo);
@@ -412,6 +412,13 @@ struct VisibilityBaselineCostInfo : public TermInfo, public MakesCost, public Ma
   DEFINE_CREATE(VisibilityBaselineCostInfo);
 };
 
+struct LegibilityBaselineCostInfo : public TermInfo, public MakesCost, public MakesConstraint {
+  double coeffs;
+  KinBody::LinkPtr link;
+  void fromJson(const Value& v);
+  void hatch(TrajOptProb& prob);
+  DEFINE_CREATE(LegibilityBaselineCostInfo);
+};
 
 //////////////////////
 // END Baseline Costs

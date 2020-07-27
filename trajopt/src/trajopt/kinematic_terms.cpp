@@ -210,7 +210,7 @@ VectorXd DistanceCostCalculator::operator()(const VectorXd& dof_vals) const {
         double dist_cost_inv = dist.transpose() * human_poses_var_.at(t * n_human_joints_ + j).inverse() * dist;
         double dist_cost_quad = 1.0 / dist_cost_inv;
         
-        costs_vals(t) = dist_cost_quad;
+        costs_vals(t) += dist_cost_quad;
       }
     }
   }
@@ -367,7 +367,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
   // scaling function
   VectorXd f_t(num_timesteps - 1);
   // regularizer constant
-  double lambda = 1.0;
+  double lambda = 0.0;
 
   // Get cost of optimal traj from Start to Goal of optimal traj
   manip_->SetDOFValues(toDblVec(dof_vals.segment((num_timesteps - 1) * 7, 7)));
@@ -379,7 +379,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
   // For every timestep (upto T - 1)
   for (int t = 0; t < num_timesteps - 1; t++) {
     // Update scaling factor
-    f_t(t) = 1.0;
+    f_t(t) = num_timesteps - t;
 
     // Calulcate length of segment and store
     manip_->SetDOFValues(toDblVec(dof_vals.segment(t * 7, 7)));
@@ -389,7 +389,7 @@ VectorXd LegibilityCostCalculator::operator()(const VectorXd& dof_vals) const {
     d_eef_q(t) = (p_eef_t1 - p_eef_t).norm();
     
     // Calculate cost of path till (t + 1)
-    double c_s_q = d_eef_q.segment(0, t).sum();
+    double c_s_q = d_eef_q.segment(0, t+1).sum();
     // Calculate cost of optimal path from (t + 1) to goal
     double cstar_q_g = (p_eef_g - p_eef_t1).norm();
     // Calculate probability of goal given path till (t + 1)
@@ -526,29 +526,31 @@ VectorXd DistanceBaselineCostCalculator::operator()(const VectorXd& dof_vals) co
   // VectorXd err_vec(num_timesteps);
 
   for (int i = 0; i < num_timesteps; i++) {
+
     manip_->SetDOFValues(toDblVec(dof_vals.segment(i * 7, 7)));
-    VectorXd p_eef_t_ = toVector3d(link_->GetTransform().trans);
-    VectorXd vec_head_eef = head_pos_ - p_eef_t_;
-    double head_eef_cost = exp(-vec_head_eef.norm());
+    double curr_head_cost = 0;
+    double curr_torso_cost = 0;
 
-    double torso_eef_cost = 0;
+    for (int i = 0; i < links_.size(); i++) {
 
-    for (int j = 0; j < 20; j++) {
-      VectorXd torso_feet_sample = torso_pos_ + (i / 19) * (feet_pos_ - torso_pos_);
+      VectorXd curr_joints = toVector3d(links_.at(i)->GetTransform().trans);
+      VectorXd vec_head_eef = head_pos_ - curr_joints;
+      curr_head_cost = max(curr_head_cost, exp(-vec_head_eef.norm()));
 
-      double torso_eef_sample_dist = 2 * (torso_feet_sample - p_eef_t_).norm();
-      double torso_eef_sample_cost = exp(-torso_eef_sample_dist);
+      for (int j = 0; j < 20; j++) {
 
-      if (torso_eef_cost < torso_eef_sample_cost) {
-        torso_eef_cost = torso_eef_sample_cost;
+        VectorXd torso_feet_sample = torso_pos_ + (j / 19) * (feet_pos_ - torso_pos_);
+        double torso_joint_sample_dist = 4 * (torso_feet_sample - curr_joints).norm();
+        curr_torso_cost = max(curr_torso_cost, exp(-torso_joint_sample_dist));
+
       }
     }
 
-    err += max(head_eef_cost, torso_eef_cost);
-    if (isnan(max(head_eef_cost, torso_eef_cost))) {
+    err += max(curr_head_cost, curr_torso_cost);
+    if (isnan(max(curr_head_cost, curr_torso_cost))) {
       std::cout << "Error is NaN" << std::endl;
-      std::cout << head_eef_cost << std::endl;
-      std::cout << torso_eef_cost << std::endl;
+      std::cout << curr_head_cost << std::endl;
+      std::cout << curr_torso_cost << std::endl;
     }
 
   }
@@ -606,10 +608,62 @@ VectorXd VisibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) 
 //   PlotAxes(env, target, .05,  handles);
 //   handles.push_back(env.drawarrow(cur.trans, target.trans, .005, OR::Vector(1,0,1,1)));
 // }
+VectorXd LegibilityBaselineCostCalculator::operator()(const VectorXd& dof_vals) const {
+
+  int num_timesteps = dof_vals.size() / 7;
+
+  // length of segment from t to t+1
+  VectorXd d_eef_q(num_timesteps - 1);
+  // total cost
+  double err = 0;
+  // scaling function
+  VectorXd f_t(num_timesteps - 1);
+  // regularizer constant
+  double lambda = 0.2;
+
+  // Get cost of optimal traj from Start to Goal of optimal traj
+  manip_->SetDOFValues(toDblVec(dof_vals.segment((num_timesteps - 1) * 7, 7)));
+  VectorXd p_eef_g = toVector3d(link_->GetTransform().trans);
+  manip_->SetDOFValues(toDblVec(dof_vals.segment(0, 7)));
+  VectorXd p_eef_s = toVector3d(link_->GetTransform().trans);
+  double cstar_s_g = (p_eef_g - p_eef_s).norm();
+
+  // For every timestep (upto T - 1)
+  for (int t = 0; t < num_timesteps - 1; t++) {
+    // Update scaling factor
+    f_t(t) = num_timesteps - t;
+
+    // Calulcate length of segment and store
+    manip_->SetDOFValues(toDblVec(dof_vals.segment(t * 7, 7)));
+    VectorXd p_eef_t = toVector3d(link_->GetTransform().trans);
+    manip_->SetDOFValues(toDblVec(dof_vals.segment((t + 1) * 7, 7)));
+    VectorXd p_eef_t1 = toVector3d(link_->GetTransform().trans);
+    d_eef_q(t) = (p_eef_t1 - p_eef_t).norm();
+    
+    // Calculate cost of path till (t + 1)
+    double c_s_q = d_eef_q.segment(0, t).sum();
+    // Calculate cost of optimal path from (t + 1) to goal
+    double cstar_q_g = (p_eef_g - p_eef_t1).norm();
+    // Calculate probability of goal given path till (t + 1)
+    double prob_g_given_q = exp(-c_s_q - cstar_q_g)/exp(-cstar_s_g);
+    // accumulate error as product of prob and scaling function
+    err += prob_g_given_q * f_t(t);
+  }
+  // divide error by sum of scaling function and subtract regularizer
+  err = (err / f_t.sum()) - (lambda * d_eef_q.sum());
+
+  // reformat error as vector
+  VectorXd err_vec(1);
+  err_vec << err;
+
+  // std::cout << "Error: " << err << std::endl;
+  return err_vec;
+}
 
 //////////////////////
 // END Baseline Costs
 //////////////////////
+
 
 
 }

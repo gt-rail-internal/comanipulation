@@ -127,8 +127,8 @@ def get_visibility_angle(scene, head_pos, robot_joints, object_pos):
     return math.acos(vec_head_obj.dot(vec_head_eef) / (np.linalg.norm(vec_head_obj) * np.linalg.norm(vec_head_eef)))
 
 
-def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05, 
-        human_sphere_num=5, robot_sphere_radius=0.05, robot_sphere_num=5, plot=False):
+def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.10, 
+        human_sphere_num=10, robot_sphere_radius=0.10, robot_sphere_num=10, plot=False):
     """
     Returns the minimum separation distance between a human and a robot.
 
@@ -141,6 +141,28 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
     robot_sphere_num: number of spheres per link for the robot
     """
 
+    human_link_info = {
+        0: [20, 0.1],
+        1: [20, 0.1],
+        2: [10, 0.1],
+        3: [20, 0.1],
+        4: [10, 0.1],
+        5: [20, 0.2],
+        6: [20, 0.1],
+        7: [20, 0.1],
+        8: [20, 0.1],
+        9: [10, 0.1]
+    }
+
+    robot_link_info = {
+        0: [20, 0.15],
+        1: [20, 0.15],
+        2: [20, 0.15],
+        3: [20, 0.15],
+        4: [20, 0.15],
+        5: [20, 0.15],
+    }
+
     human_pos = np.array(human_pos)
     robot_joints_pos = scene.performFK(robot_joints)
     robot_joints_pos = np.array(robot_joints_pos)
@@ -152,13 +174,13 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
 
     distance = float('inf')
 
-    for curr_human_link in HUMAN_LINKS:
+    for human_link_index, curr_human_link in enumerate(HUMAN_LINKS):
+        curr_human_sphere_num, curr_human_sphere_radius = human_link_info[human_link_index]
         human_link_start = human_pos[3*curr_human_link[0]:3*(1+curr_human_link[0])]
         human_link_end = human_pos[3*curr_human_link[1]:3*(1+curr_human_link[1])]
-        human_sphere_sep = (human_link_end - human_link_start)/human_sphere_num
+        human_sphere_sep = (human_link_end - human_link_start)/curr_human_sphere_num
         # create human_sphere_num spheres equally spaced along each human link
-        human_spheres_centers = [human_link_start + i *
-                                 human_sphere_sep for i in range(human_sphere_num)]
+        human_spheres_centers = [human_link_start + i * human_sphere_sep for i in range(curr_human_sphere_num)]
         
         if plot:
             humanXLine = np.linspace(human_link_start[0], human_link_end[0], 25)
@@ -168,15 +190,15 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
             for center in human_spheres_centers:
                 plotter.scatter([center[0]], [center[1]], [center[2]], c='y')
 
-        for curr_robot_link in ROBOT_LINKS:
+        for robot_link_index, curr_robot_link in enumerate(ROBOT_LINKS):
+            curr_robot_sphere_num, curr_robot_sphere_radius = robot_link_info[robot_link_index]
             robot_link_start = robot_joints_pos[3 *
                                                 curr_robot_link[0]:3*(1+curr_robot_link[0])]
             robot_link_end = robot_joints_pos[3 *
                                               curr_robot_link[1]:3*(1+curr_robot_link[1])]
-            robot_sphere_sep = (robot_link_end - robot_link_start)/robot_sphere_num
+            robot_sphere_sep = (robot_link_end - robot_link_start)/curr_robot_sphere_num
             # create robot_sphere_num spheres equally spaced along each robot link
-            robot_spheres_centers = [robot_link_start + i *
-                                     robot_sphere_sep for i in range(robot_sphere_num)]
+            robot_spheres_centers = [robot_link_start + i * robot_sphere_sep for i in range(curr_robot_sphere_num)]
 
             if plot:
                 robotXLine = np.linspace(robot_link_start[0], robot_link_end[0], 25)
@@ -190,7 +212,7 @@ def get_separation_dist(scene, human_pos, robot_joints, human_sphere_radius=0.05
                 for robot_sphere_center in robot_spheres_centers:
                     center_dist = calculate_distance_3d(
                         human_sphere_center, robot_sphere_center)
-                    curr_distance = center_dist - human_sphere_radius - robot_sphere_radius
+                    curr_distance = center_dist - curr_human_sphere_radius - curr_robot_sphere_radius
                     distance = min(distance, curr_distance)
     if plot:
         plt.show()
@@ -263,6 +285,8 @@ def compute_distance_metric(scene, human_traj_expanded, num_obs_timesteps, num_t
     num_above_threshold = 0
 
     for t in range(num_obs_timesteps, num_total_timesteps):
+        # robot trajectory is sampled at 10 Hz, human trajectory is sampled at 100 Hz
+        # so robot discrete time is human discrete time / 10
         robot_timestep = (t - num_obs_timesteps) / 10.0
         robot_joints = robot_traj_spline(robot_timestep)
 
@@ -298,27 +322,26 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
         
         curr_head_pos = full_head_test_traj_expanded[t * 3: (t + 1) * 3]
         vis_t = get_visibility_angle(scene, curr_head_pos, robot_joints, object_pos)
-        # print(vis_t)
 
         visibilities.append(vis_t)
 
         if vis_t < visibility_threshold:
             num_below_thres += 1
     
-    return num_below_thres * 1.0 / (num_total_timesteps - num_obs_timesteps)
+    return float(num_below_thres) / float(num_total_timesteps - num_obs_timesteps)
 
 def compute_legibility_metric(scene, robot_traj):
     """
     Returns a legibility metric based on the robot's average deviation
     from a linear path in cartesian space. 
-    No upper bound.
+    Bounded between 0 and 1.
 
     scene: an instance of a Scene object (from scene_utils)
     robot_traj: the robot trajectory (vectorized)
     """
     num_timesteps = np.array(robot_traj).shape[0]
     eef_pos_dist = np.zeros((num_timesteps - 1))
-    legibility = 0
+    legibility = 0.0
     f_t = np.ones((num_timesteps - 1)) # f_t allows different weighting of the average
 
     eef_goal_pos = scene.get_eef_position(robot_traj[-1])
@@ -327,6 +350,7 @@ def compute_legibility_metric(scene, robot_traj):
     start_goal_dist = np.linalg.norm(eef_goal_pos - eef_start_pos)
 
     for i in range(num_timesteps - 1):
+        f_t[i] = num_timesteps - i #f(t) = T - t where T is the complete time period
         curr_eef_pos = scene.get_eef_position(robot_traj[i])
         next_eef_pos = scene.get_eef_position(robot_traj[i + 1])
         eef_pos_dist[i] = np.linalg.norm(next_eef_pos - curr_eef_pos)
@@ -337,7 +361,7 @@ def compute_legibility_metric(scene, robot_traj):
         p_g_given_q = np.exp(-dist_traveled - dist_remaining) / np.exp(-start_goal_dist)
         legibility += p_g_given_q * f_t[i]
 
-    legibility = legibility / np.sum(f_t)
+    legibility = 1 - (legibility / np.sum(f_t))
 
     return legibility
 

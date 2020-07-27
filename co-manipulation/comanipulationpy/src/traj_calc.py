@@ -7,6 +7,7 @@ import metrics
 import plots
 import json
 import trajoptpy
+# trajoptpy.SetInteractive(True)
 
 from scipy.interpolate import CubicSpline
 
@@ -73,6 +74,16 @@ class TrajectoryPlanner:
             self.complete_pred_traj_means, self.complete_pred_traj_vars)
         self.n_pred_timesteps = len(
             self.complete_pred_traj_means_expanded) / (self.n_human_joints * 3)
+        
+        self.full_complete_test_traj = traj_utils.create_human_plot_traj(self.full_rightarm_test_traj)
+        self.obs_complete_test_traj = traj_utils.create_human_plot_traj(self.obs_rightarm_test_traj)
+        self.num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
+        self.final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
+        head_ind = 5
+        torso_ind = 6
+        self.head_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + head_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + head_ind + 1) * 3]
+        self.torso_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + torso_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + torso_ind + 1) * 3]
+        self.feet_pos = [self.torso_pos[0], self.torso_pos[1], self.torso_pos[2] - 0.5]
 
     def set_traj(self, complete_traj_means, complete_traj_vars):
         """
@@ -126,14 +137,18 @@ class TrajectoryPlanner:
         final_joint: the desired set of joint angles
         coeffs: A dictionary containing information on weights. All keys are optional.
         Valid keys are 
-            'distance': array of length num_timesteps
-            'collision': a dictionary mapping 'cost' and 'dist_pen' to number arrays
-            'nominal': number
-            'regularize': array of length num_timesteps - 1
-            'smoothing': dictionary mapping 'cost' and 'type' to a number and an int, respectively
-            'velocity': array of length num_timesteps
-            'visibility': array of length num_timesteps
-            'legibility': number
+            "distance": array of length num_timesteps
+            "distanceBaseline": array of length num_timesteps
+            "collision": a dictionary mapping 'cost' and 'dist_pen' to number arrays
+            "nominal": number
+            "regularize": array of length num_timesteps - 1
+            "smoothing": dictionary mapping 'cost' and 'type' to a number and an int, respectively
+            "velocity": array of length num_timesteps (this is a CoMOTO cost, not the trajopt joint velocity cost)
+            "visibility": array of length num_timesteps
+            "visibilityBaseline": array of length num_timesteps
+            "legibility": number
+            "legibilityBaseline": number
+            "joint_vel": number or [number] of length 1. This is the trajopt joint velocity cost.
         object_pos: The position of the object of interest to the person. Only needed for
             visiblity cost
         """
@@ -148,6 +163,15 @@ class TrajectoryPlanner:
         if "distance" in coeffs:
             req_util.add_distance_cost(request, self.complete_pred_traj_means_expanded,
                                        self.complete_pred_traj_vars_expanded, coeffs["distance"], self.n_human_joints, self.scene.all_links)
+        if "distanceBaseline" in coeffs:
+            req_util.add_distance_baseline_cost(request, self.head_pos, self.torso_pos, self.feet_pos, self.scene.all_links, self.n_pred_timesteps, coeffs["distanceBaseline"])
+        
+        if "visibilityBaseline" in coeffs:
+            req_util.add_visibility_baseline_cost(request, self.head_pos, object_pos, self.scene.eef_link_name, self.n_pred_timesteps, coeffs["visibilityBaseline"])
+
+        if "legibilityBaseline" in coeffs:
+            req_util.add_legibility_baseline_cost(
+                request, coeffs["legibilityBaseline"], self.scene.eef_link_name)
         if "collision" in coeffs:
             req_util.add_collision_cost(
                 request, coeffs["collision"]["cost"], coeffs["collision"]["dist_pen"])
@@ -160,21 +184,23 @@ class TrajectoryPlanner:
         if "smoothing" in coeffs:
             req_util.add_smoothing_cost(
                 request, coeffs["smoothing"]["cost"], coeffs["smoothing"]["type"])
-        if 'velocity' in coeffs:
+        if "velocity" in coeffs:
             req_util.add_velocity_cost(request, self.complete_pred_traj_means_expanded,
-                                       self.complete_pred_traj_vars_expanded, coeffs['velocity'], self.n_human_joints, self.scene.all_links)
-        if 'visibility' in coeffs:
+                                       self.complete_pred_traj_vars_expanded, coeffs["velocity"], self.n_human_joints, self.scene.all_links)
+        if "visibility" in coeffs:
             head_pred_traj_mean, head_pred_traj_var = traj_utils.create_human_head_means_vars(
                 self.complete_pred_traj_means_expanded, self.complete_pred_traj_vars_expanded)
             req_util.add_visibility_cost(request, head_pred_traj_mean, head_pred_traj_var,
-                                         coeffs['visibility'], object_pos, self.scene.eef_link_name)
-        if 'legibility' in coeffs:
+                                         coeffs["visibility"], object_pos, self.scene.eef_link_name)
+        if "legibility" in coeffs:
             req_util.add_legibility_cost(
-                request, coeffs['legibility'], self.scene.eef_link_name)
+                request, coeffs["legibility"], self.scene.eef_link_name)
+        
+        if "joint_vel" in coeffs:
+            req_util.add_joint_vel_cost(request, coeffs["joint_vel"])
 
         result = self.optimize_problem(request)
         eef_traj = self.scene.follow_trajectory(np.array(result.GetTraj()))
-
         return result, eef_traj
 
     def calculate_adaptive_trajectory(self, robot_joints, human_traj):
@@ -190,8 +216,8 @@ class TrajectoryPlanner:
         '''
         scaling_factor = 1  
         d_slow = 0.15 # choose threshold
-        d_stop = 0.6 # choose threshold
-        beta = 0.5 # parameter
+        d_stop = 0.06 # choose threshold
+        beta = 3.3332 # parameter
         gamma = 0.5 # parameter
         traj_interpolation = cubic_interpolation(robot_joints, self.n_robot_joints)
         num_timesteps = len(human_traj)/(self.n_human_joints*3)
@@ -221,6 +247,8 @@ class TrajectoryPlanner:
                 done = True
             elif human_timestep == (num_timesteps - 1) and scaling_factor == 1:
                 done = True
+            else:
+                done = False
         
         return new_exec_traj
 
