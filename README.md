@@ -1,7 +1,7 @@
 
 Collaborative Manipulation Project - Trajectory Adaptation
 
-Abhinav Jain (jain@gatech.edu), Daphne Chen, Dhruva Bansal, David Kent, Harish Ravichandar and Sonia Chernova
+Abhinav Jain (jain@gatech.edu), Daphne Chen, Dhruva Bansal, Sam Scheele, Mayank Kishore, Hritik Sapra, David Kent, Harish Ravichandar and Sonia Chernova
 
 # Repositories
 
