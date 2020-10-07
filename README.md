@@ -81,9 +81,10 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     ./install-fcl.sh
     ./install-openrave.sh
     ```
-    - Add OpenRAVE to your `PYTHONPATH`.
-        `export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir`
-        Put this line in your .bashrc file.
+    - Add OpenRAVE to your `PYTHONPATH` (Put this line in your .bashrc file).
+        ```
+        export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir
+        ```
 3. MATLAB and matlab.engine (see [here](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html))
 4. ROS Packages
     1. kinova-ros ([GT-RAIL github](https://github.com/GT-RAIL/kinova-ros)) - `melodic-7dof` branch
@@ -132,8 +133,8 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     
 # Running
 
-1. Start a ROS instance using `roscore`
-2. Run `roslaunch human_traj_display iiwa_full.launch`
+1. Start a ROS instance - `roscore`
+2. Start roslaunch - `roslaunch human_traj_display iiwa_full.launch`
 3. Run driver.py (python 2) - `python ~/<path_to_catkin_ws>/src/comanipulation/co-manipulation/comanipulationpy/src/driver.py`
 
 # TODO
