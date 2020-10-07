@@ -83,7 +83,7 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     ```
     - Add OpenRAVE to your `PYTHONPATH` (Put this line in your .bashrc file).
         ```
-        export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir
+        export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir`
         ```
 3. MATLAB and matlab.engine (see [here](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html))
 4. ROS Packages
