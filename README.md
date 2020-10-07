@@ -74,50 +74,67 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
 
 1. ROS Melodic (see [here](http://wiki.ros.org/melodic/Installation/Ubuntu))
 2. OpenRAVE (run `install_all.sh` in `/trajopt/openrave_installation/` or see [here](https://github.com/crigroup/openrave-installation))
+    - If `install_all.sh` does not work (OpenRAVE error), try:
+    ```
+    ./install-dependencies.sh
+    ./install-osg.sh
+    ./install-fcl.sh
+    ./install-openrave.sh
+    ```
+    - Add OpenRAVE to your `PYTHONPATH`.
+        `export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir`
+        Put this line in your .bashrc file.
 3. MATLAB and matlab.engine (see [here](https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html))
-4. Kinect Azure Libraries (see [here](https://docs.microsoft.com/en-us/azure/kinect-dk/sensor-sdk-download))
-    1. libk4abt1.0-dev
-    2. libk4a1.3-dev
-5. ROS Packages
+4. ROS Packages
     1. kinova-ros ([GT-RAIL github](https://github.com/GT-RAIL/kinova-ros)) - `melodic-7dof` branch
     2. robotiq_85_gripper ([GT-RAIL github](https://github.com/GT-RAIL/robotiq_85_gripper)) - `melodic-devel` branch
-    3. robotiq_85_gripper_actions ([GT-RAIL github](https://github.com/GT-RAIL/robotiq_85_gripper_actions)) - `melodic-7dof` branch
-    4. rail_manipulation_msgs ([GT-RAIL github](https://github.com/GT-RAIL/rail_manipulation_msgs)) - `melodic-7dof` branch
-    5. Azure_Kinect_ROS_Driver ([microsoft github](https://github.com/microsoft/Azure_Kinect_ROS_Driver))
-    6. Iiwa_stack ([Abhinav Jain](https://github.com/abhinavj30/iiwa_stack)) - `master` branch
+    3. robotiq_85_gripper_actions ([GT-RAIL github](https://github.com/GT-RAIL/robotiq_85_gripper_actions)) - `melodic-devel` branch
+    4. rail_manipulation_msgs ([GT-RAIL github](https://github.com/GT-RAIL/rail_manipulation_msgs)) - `melodic-devel` branch
+    5. Iiwa_stack ([Abhinav Jain](https://github.com/abhinavj30/iiwa_stack)) - `master` branch
+    6. ROS Embedded Control Libraries (ecl) - `sudo apt-get install ros-melodic-ecl`
+    7. ROS MoveIt - `sudo apt-get install ros-melodic-moveit`
 
 ## Building
 
-The co_manipulation repository goes into a catkin workspace along with the ROS dependencies (see [here](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) for instructions).
+1. Install [catkin](https://wiki.ros.org/catkin#Installing_catkin).
+    `sudo apt-get install ros-melodic-catkin`
 
-The trajopt repository is built using cmake. Follow build instructions here. Note that OpenRAVE, OpenSceneGraph and Boost are installed by the openrave installation scripts above. Be sure to update `PYTHONPATH` after building trajopt.
+2. Put the comanipulation repository and ROS packages in a catkin workspace (see [here](http://wiki.ros.org/catkin/Tutorials/create_a_workspace) for instructions).
+    Some notes:
+    - Make sure `source /opt/ros/melodic/setup.bash` is in your .bashrc file (should have done this when installing ROS Melodic). If it isn't, add it and run `source .bashrc`.
+    - After you create the workspace, add `source <path_to_catkin_ws>/devel/setup.bash` to your .bashrc file.
+    - Move the comanipulation repository and all the ROS packages installed in step 4 above into the <path_to_catkin_ws>/src directory.
 
-Run the following commands to build trajopt:
+3. Build the trajopt repository (<path_to_catkin_ws>/src/comanipulation/trajopt) using cmake. Note that OpenRAVE, OpenSceneGraph and Boost are installed by the openrave installation scripts above.
 
-```
-mkdir build && cd build
-cmake ..
-make -j `nproc`
-```
+    - Within the trajopt directory, run the following commands to build trajopt:
+    ```
+    mkdir build && cd build
+    cmake ..
+    make -j `nproc`
+    ```
+    - Update `PYTHONPATH` after building trajopt.
+    ```
+    export PYTHONPATH=$PYTHONPATH:~/<path_to_catkin_ws>/src/comanipulation/trajopt
+    export PYTHONPATH=$PYTHONPATH:~/<path_to_catkin_ws>/src/comanipulation/trajopt/build/lib
+    ```
+    Put these lines in your .bashrc file.
+    
+    Note that trajopt unittests may fail due to unstable OpenRAVE/OpenRAVEpy. OpenRAVE often crashes on exit.
 
-Note that trajopt unittests may fail due to unstable OpenRAVE/OpenRAVEpy. OpenRAVE often crashes on exit.
+4. Build the catkin workspace using `catkin_make`.
 
-Verify installation: 
-
-- Build the catkin workspace using `catkin build`
-- Start ROS using `roscore`
-- Run trajopt using `python2 testing.py`
-- Run human motion predictor using `rosrun human_traj_pred predict_human_traj.py`
-- Run phantom trajectory stream using `rosrun human_traj_pred phantom_human_traj_stream.py`
-
+5. Verify installation:
+    - Start ROS using `roscore`
+    - Run trajopt using `python2 testing.py`
+    - Run human motion predictor using `rosrun human_traj_pred predict_human_traj.py`
+    - Run phantom trajectory stream using `rosrun human_traj_pred phantom_human_traj_stream.py`
+    
 # Running
 
-- First build the catkin workspace using `catkin build`.
-- Start a ROS instance using `roscore`.
-- If a Jaco is being used, run `roslaunch conimbus_bringup conimbus_bringup.launch` to start the robot.
-- Use the command `rosrun human_traj_pred filename.py` to run the human trajectory prediction files. These files have to be run from catkin_ws/src/co-manipulation/human_traj_pred/src/. You must also make all python files executable. This can be done using the command chmod +x filename.py. 
-- Trajopt is run through `testing.py` in trajopt/comanipulationpy.
-
+1. Start a ROS instance using `roscore`
+2. Run `roslaunch human_traj_display iiwa_full.launch`
+3. Run driver.py (python 2) - `python ~/<path_to_catkin_ws>/src/comanipulation/co-manipulation/comanipulationpy/src/driver.py`
 
 # TODO
 
