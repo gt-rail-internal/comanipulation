@@ -81,7 +81,7 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     ./install-fcl.sh
     ./install-openrave.sh
     ```
-    - Add OpenRAVE to your `PYTHONPATH` (Put this line in your .bashrc file).
+    - Add OpenRAVE to your `PYTHONPATH` (and put this line in your .bashrc file).
         ```
         export PYTHONPATH=$PYTHONPATH:`openrave-config --python-dir`
         ```
@@ -114,13 +114,11 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     cmake ..
     make -j `nproc`
     ```
-    - Update `PYTHONPATH` after building trajopt.
+    - Update `PYTHONPATH` after building trajopt (and put these lines in your .bashrc file).
     ```
     export PYTHONPATH=$PYTHONPATH:~/<path_to_catkin_ws>/src/comanipulation/trajopt
     export PYTHONPATH=$PYTHONPATH:~/<path_to_catkin_ws>/src/comanipulation/trajopt/build/lib
-    ```
-    Put these lines in your .bashrc file.
-    
+    ```   
     Note that trajopt unittests may fail due to unstable OpenRAVE/OpenRAVEpy. OpenRAVE often crashes on exit.
 
 4. Build the catkin workspace using `catkin_make`.
