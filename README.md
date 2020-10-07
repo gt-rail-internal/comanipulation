@@ -73,8 +73,8 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
 ## Dependencies
 
 1. ROS Melodic (see [here](http://wiki.ros.org/melodic/Installation/Ubuntu))
-2. OpenRAVE (run `install_all.sh` in `/trajopt/openrave_installation/` or see [here](https://github.com/crigroup/openrave-installation))
-    - If `install_all.sh` does not work (OpenRAVE error), try:
+2. OpenRAVE (run `./install_all.sh` in `/trajopt/openrave_installation/` or see [here](https://github.com/crigroup/openrave-installation))
+    - If install_all.sh does not work (OpenRAVE error), try:
     ```
     ./install-dependencies.sh
     ./install-osg.sh
