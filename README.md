@@ -94,6 +94,7 @@ OpenRAVE uses collada models for robot description whereas ROS uses URDF. We use
     5. Iiwa_stack ([Abhinav Jain](https://github.com/abhinavj30/iiwa_stack)) - `master` branch
     6. ROS Embedded Control Libraries (ecl) - `sudo apt-get install ros-melodic-ecl`
     7. ROS MoveIt - `sudo apt-get install ros-melodic-moveit`
+    8. Sophus - `sudo apt-get install ros-melodic-sophus`
 
 ## Building
 
