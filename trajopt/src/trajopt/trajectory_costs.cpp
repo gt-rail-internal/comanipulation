@@ -83,7 +83,7 @@ double TestCost::value(const vector<double>& xvec) {
   // std::cout << "vars_: " << vars_ << std::endl;
   // std::cout << "xvec: " << xvec << std::endl;
   MatrixXd traj = getTraj(xvec, vars_);
-  std::cout << "getTraj: " << traj << std::endl;
+  // std::cout << "getTraj: " << traj << std::endl;
   return (diffAxis0(traj).array().square().matrix() * coeffs_.asDiagonal()).sum();
 }
 ConvexObjectivePtr TestCost::convex(const vector<double>& x, Model* model) {

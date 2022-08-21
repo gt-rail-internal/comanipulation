@@ -252,10 +252,10 @@ def evaluate_metrics(scene, robot_traj, human_traj, num_obs_timesteps, object_po
             human_traj_expanded[start_head_pos + 2])
 
     distance_metric = compute_distance_metric(scene,
-        human_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj)
+        human_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj, nominal_traj)
     visibility_metric = compute_visibility_metric(scene,
-        full_head_test_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj, object_pos)
-    legibility_metric = compute_legibility_metric(scene, robot_traj)
+        full_head_test_traj_expanded, num_obs_timesteps, num_timesteps_expanded, robot_traj, nominal_traj, object_pos)
+    legibility_metric = 0
     nominal_traj_metric = compute_nominal_traj_metric(scene, robot_traj, nominal_traj)
 
     metrics = [distance_metric, visibility_metric,
@@ -264,7 +264,7 @@ def evaluate_metrics(scene, robot_traj, human_traj, num_obs_timesteps, object_po
     # print(metrics)
     return metrics
 
-def compute_distance_metric(scene, human_traj_expanded, num_obs_timesteps, num_total_timesteps, robot_traj):
+def compute_distance_metric(scene, human_traj_expanded, num_obs_timesteps, num_total_timesteps, robot_traj, nominal_traj):
     """
     Returns a distance metric, defined as the fraction of timesteps in which some part of the robot 
     gets closer to the human than a hardcoded threshold. Between 0 and 1.
@@ -282,21 +282,35 @@ def compute_distance_metric(scene, human_traj_expanded, num_obs_timesteps, num_t
     distance_threshold = 0.2
 
     robot_traj_spline = traj_calc.cubic_interpolation(robot_traj, n_robot_joints)
+    nominal_robot_traj_spline = traj_calc.cubic_interpolation(nominal_traj, n_robot_joints)
     num_above_threshold = 0
+
+    dist_matrix = []
+    nom_dist_matrix = []
+    timesteps = []
 
     for t in range(num_obs_timesteps, num_total_timesteps):
         # robot trajectory is sampled at 10 Hz, human trajectory is sampled at 100 Hz
         # so robot discrete time is human discrete time / 10
         robot_timestep = (t - num_obs_timesteps) / 10.0
+        timesteps.append(robot_timestep)
         robot_joints = robot_traj_spline(robot_timestep)
+        nominal_robot_joints = nominal_robot_traj_spline(robot_timestep)
 
         dist_t = get_separation_dist(scene, human_traj_expanded[t*n_human_joints*3 : (t+1)*n_human_joints*3], robot_joints)
+        nom_dist_t = get_separation_dist(scene, human_traj_expanded[t*n_human_joints*3 : (t+1)*n_human_joints*3], nominal_robot_joints)
+        dist_matrix.append(dist_t)
+        nom_dist_matrix.append(nom_dist_t)
+
         if dist_t > distance_threshold:
             num_above_threshold += 1
-    
+    # plt.plot(timesteps,dist_matrix, label="Executed Distance")
+    # plt.plot(timesteps, nom_dist_matrix, label="Nominal Distance")
+    # plt.legend()
+    # plt.show()
     return num_above_threshold * 1.0 / (num_total_timesteps - num_obs_timesteps)
 
-def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_timesteps, num_total_timesteps, robot_traj, object_pos):
+def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_timesteps, num_total_timesteps, robot_traj, nominal_traj, object_pos):
     """
     Returns a visibility metric, defined as the fraction of timesteps the 
     eef-head-object angle falls below a hardcoded threshold. Between 0 and 1.
@@ -312,25 +326,34 @@ def compute_visibility_metric(scene, full_head_test_traj_expanded, num_obs_times
     visibility_threshold = 1.4
 
     robot_traj_spline = traj_calc.cubic_interpolation(robot_traj, n_robot_joints)
+    nominal_robot_traj_spline = traj_calc.cubic_interpolation(nominal_traj, n_robot_joints)
     num_below_thres = 0
 
     visibilities = []
-
+    nominal_visibilities = []
+    timesteps = []
     for t in range(num_obs_timesteps, num_total_timesteps):
         robot_timestep = (t - num_obs_timesteps) / 10.0
+        timesteps.append(robot_timestep)
         robot_joints = robot_traj_spline(robot_timestep)
+        nominal_robot_joints = nominal_robot_traj_spline(robot_timestep)
         
         curr_head_pos = full_head_test_traj_expanded[t * 3: (t + 1) * 3]
         vis_t = get_visibility_angle(scene, curr_head_pos, robot_joints, object_pos)
+        nom_vis_t = get_visibility_angle(scene, curr_head_pos, nominal_robot_joints, object_pos)
 
         visibilities.append(vis_t)
+        nominal_visibilities.append(nom_vis_t)
 
         if vis_t < visibility_threshold:
             num_below_thres += 1
-    
+    # plt.plot(timesteps, visibilities, label = "Executed Visibilities")
+    # plt.plot(timesteps, nominal_visibilities, label = "Nominal Visibility")
+    # plt.legend()
+    # plt.show()
     return float(num_below_thres) / float(num_total_timesteps - num_obs_timesteps)
 
-def compute_legibility_metric(scene, robot_traj):
+def compute_legibility_metric(scene, robot_traj, nominal_traj):
     """
     Returns a legibility metric based on the robot's average deviation
     from a linear path in cartesian space. 
@@ -347,14 +370,21 @@ def compute_legibility_metric(scene, robot_traj):
     eef_goal_pos = scene.get_eef_position(robot_traj[-1])
     eef_start_pos = scene.get_eef_position(robot_traj[0])
 
+    nom_eef_goal_pos = scene.get_eef_position(robot_traj[-1])
+    nom_eef_start_pos = scene.get_eef_position(robot_traj[0])
+
     start_goal_dist = np.linalg.norm(eef_goal_pos - eef_start_pos)
+    nom_start_goal_dist = np.linalg.norm(nom_eef_goal_pos - nom_eef_start_pos)
 
     for i in range(num_timesteps - 1):
         f_t[i] = num_timesteps - i #f(t) = T - t where T is the complete time period
         curr_eef_pos = scene.get_eef_position(robot_traj[i])
         next_eef_pos = scene.get_eef_position(robot_traj[i + 1])
-        eef_pos_dist[i] = np.linalg.norm(next_eef_pos - curr_eef_pos)
+        nom_curr_eef_pos = scene.get_eef_position(robot_traj[i])
+        nom_next_eef_pos = scene.get_eef_position(robot_traj[i + 1])
 
+        eef_pos_dist[i] = np.linalg.norm(next_eef_pos - curr_eef_pos)
+        nom_eef_post_dist[i] = np.linalg.norm(nom_next_eef_pos - nom_curr_eef_pos)
         dist_remaining = np.linalg.norm(eef_goal_pos - next_eef_pos)
         dist_traveled = np.sum(eef_pos_dist[:i])
 
@@ -362,6 +392,8 @@ def compute_legibility_metric(scene, robot_traj):
         legibility += p_g_given_q * f_t[i]
 
     legibility = 1 - (legibility / np.sum(f_t))
+    print("Executed  Legibility: " + str(legibility))
+    print("Nominal Legibility: " + str(nom_legibility))
 
     return legibility
 

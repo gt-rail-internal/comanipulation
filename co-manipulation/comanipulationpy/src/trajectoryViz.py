@@ -54,10 +54,10 @@ def plot_pred_obs_trajectory(pos_name, file_name, human_obs_pos = None, human_do
     
     ax.scatter(human_obs_pos[0::3], human_obs_pos[1::3], zs=human_obs_pos[2::3], color="blue", label="Observation Position")
     ax.plot(human_obs_pos[0:human_dof*3:3], human_obs_pos[1:human_dof*3:3], zs=human_obs_pos[2:human_dof*3 + 1:3], color="magenta", label="Observation Start Position")
-    ax.plot(human_obs_pos[len(human_obs_pos) - human_dof*3::3], human_obs_pos[len(human_obs_pos) - human_dof*3 + 1::3], zs=human_obs_pos[len(human_obs_pos) - human_dof*3 + 2::3], color="pink", label="Observation Stop Position")
+    ax.plot(human_obs_pos[len(human_obs_pos) - human_dof*3::3], human_obs_pos[len(human_obs_pos) - human_dof*3 + 1::3], zs=human_obs_pos[len(human_obs_pos) - human_dof*3 + 2::3], color="yellow", label="Observation Stop Position")
     
-    ax.scatter(human_pred_pos[0::3], human_pred_pos[1::3], zs=human_pred_pos[2::3], color="red", label="Prediction Position")
-    ax.plot(human_pred_pos[0:human_dof*3:3], human_pred_pos[1:human_dof*3:3], zs=human_pred_pos[2:human_dof*3 + 1:3], color="orange", label="Prediction Start Position")
+    ax.scatter(human_pred_pos[0::3], human_pred_pos[1::3], zs=human_pred_pos[2::3], color="orange", label="Prediction Position")
+    ax.plot(human_pred_pos[0:human_dof*3:3], human_pred_pos[1:human_dof*3:3], zs=human_pred_pos[2:human_dof*3 + 1:3], color="black", label="Prediction Start Position")
     ax.plot(human_pred_pos[len(human_pred_pos) - human_dof*3::3], human_pred_pos[len(human_pred_pos) - human_dof*3 + 1::3], zs=human_pred_pos[len(human_pred_pos) - human_dof*3 + 2::3], color="green", label="Prediction Stop Position")
     
     ax.set_title(pos_name)
@@ -69,12 +69,12 @@ def plot_pred_obs_trajectory(pos_name, file_name, human_obs_pos = None, human_do
     plt.show()
 
 
-obs_pose_mean = "../human_prob_models/scripts/csvFiles/Test/traj_703.csv"
+obs_pose_mean = "../human_prob_models/scripts/csvFiles/Test/traj_100002.csv"
 human_obs_pos = read_human_poses_mean(obs_pose_mean)
-pred_pose_mean = "../human_prob_models/scripts/csvFiles/Predictions/predtraj_703_trimmed.csv"
+pred_pose_mean = "../human_prob_models/scripts/csvFiles/Predictions/predSampledtraj_100002_trimmed.csv"
 human_pred_pos = read_human_poses_mean(pred_pose_mean)
 
-plot_pred_obs_trajectory("HumanPose", "plots/HumanPoseViz/traj_703_combined.png", human_obs_pos, 4, human_pred_pos)
+plot_pred_obs_trajectory("HumanPose", "plots/HumanPoseViz/traj_100002_combined.png", human_obs_pos, 4, human_pred_pos)
 
 
 # obs_pose_mean = "../human_prob_models/scripts/csvFiles/Test/traj_144.csv"

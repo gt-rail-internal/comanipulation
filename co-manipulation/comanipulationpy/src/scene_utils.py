@@ -70,7 +70,7 @@ class Scene:
         # self.follow_joint_trajectory_client.move_to(traj[0], duration=1)
         self.follow_joint_trajectory_client.move_to(traj[0])
         raw_input("Ready for Gazebo execution?")
-        self.follow_joint_trajectory_client.follow_trajectory(traj, duration=0.5)
+        self.follow_joint_trajectory_client.follow_trajectory(traj, duration=0.05)
 
     def execute_full_trajectory(self, traj, human_traj, obs_traj_len, full_human_traj_len):
         """

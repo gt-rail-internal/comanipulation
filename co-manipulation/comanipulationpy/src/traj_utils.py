@@ -8,7 +8,8 @@ from operator import add
 
 def create_human_trajectory_tree(right_arm_trajectory):
     num_timesteps = len(right_arm_trajectory)/12
-
+    print('Printing right arm traj')
+    print(right_arm_trajectory)
     human_trajectory = {}
 
     human_trajectory["right_shoulder"] = []
@@ -39,13 +40,13 @@ def create_human_trajectory_tree(right_arm_trajectory):
         human_trajectory["right_wrist"].append([right_arm_trajectory[i * 12 + 6] - right_arm_trajectory[i * 12 + 3], right_arm_trajectory[i * 12 + 7] -  right_arm_trajectory[i * 12 + 4], right_arm_trajectory[i * 12 + 8] - right_arm_trajectory[i * 12 + 5]])
         human_trajectory["right_palm"].append([right_arm_trajectory[i * 12 + 9] - right_arm_trajectory[i * 12 + 6], right_arm_trajectory[i * 12 + 10] -  right_arm_trajectory[i * 12 + 7], right_arm_trajectory[i * 12 + 11] - right_arm_trajectory[i * 12 + 8]])
 
-        human_trajectory["neck"].append([0.2, 0, 0])
+        human_trajectory["neck"].append([-0.2, 0, 0])
         human_trajectory["head"].append([0, 0, 0.15])
 
         human_trajectory["torso"].append([right_arm_trajectory[0] - right_arm_trajectory[i * 12 + 0], right_arm_trajectory[1] -  right_arm_trajectory[i * 12 + 1], right_arm_trajectory[2] - right_arm_trajectory[i * 12 + 2] - 0.6])
         # human_trajectory["torso"].append([0, 0, -0.4])
 
-        human_trajectory["left_shoulder"].append([0.2, 0, 0])
+        human_trajectory["left_shoulder"].append([-0.2, 0, 0])
         human_trajectory["left_elbow"].append([0, 0, -0.3])
         human_trajectory["left_wrist"].append([0, 0, -0.3])
         human_trajectory["left_palm"].append([0, 0, -0.1])
@@ -76,11 +77,11 @@ def create_human_means_vars(human_poses_mean, human_poses_var):
         right_palm_variance = human_poses_var[i*36 + 27 : i*36 + 36]
 
 
-        neck = list(map(add, [0.2, 0, 0], right_shoulder))
+        neck = list(map(add, [-0.2, 0, 0], right_shoulder))
         head = list(map(add, [0, 0, 0.15], neck))
         torso = list(map(add, [0, 0, -0.6], neck))
 
-        left_shoulder = list(map(add, [0.2, 0, 0], neck))
+        left_shoulder = list(map(add, [-0.2, 0, 0], neck))
         left_elbow = list(map(add, [0, 0, -0.3], left_shoulder))
         left_wrist = list(map(add, [0, 0, -0.3], left_elbow))
         left_palm = list(map(add, [0, 0, -0.1], left_wrist))
@@ -120,11 +121,11 @@ def create_human_plot_traj(human_poses):
         right_palm = [human_poses[i * 12 + 9], human_poses[i * 12 + 10], human_poses[i * 12 + 11]]
 
 
-        neck = list(map(add, [0.2, 0, 0], right_shoulder))
+        neck = list(map(add, [-0.2, 0, 0], right_shoulder))
         head = list(map(add, [0, 0, 0.15], neck))
         torso = list(map(add, [0, 0, -0.], neck))
 
-        left_shoulder = list(map(add, [0.2, 0, 0], neck))
+        left_shoulder = list(map(add, [-0.2, 0, 0], neck))
         left_elbow = list(map(add, [0, 0, -0.3], left_shoulder))
         left_wrist = list(map(add, [0, 0, -0.3], left_elbow))
         left_palm = list(map(add, [0, 0, -0.1], left_wrist))

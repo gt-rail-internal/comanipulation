@@ -7,6 +7,7 @@ import metrics
 import plots
 import json
 import trajoptpy
+import csv
 # trajoptpy.SetInteractive(True)
 
 from scipy.interpolate import CubicSpline
@@ -41,7 +42,7 @@ class TrajectoryPlanner:
 
         return result
 
-    def get_default_traj(self, init_joint, final_joint, num_timesteps):
+    def get_default_traj(self, init_joint, final_joint, num_timesteps, potential_goal_states):
         """
         Returns a trajectory constrained only by joint velocities and the
         corresponding end effector cartesian trajectory
@@ -61,6 +62,16 @@ class TrajectoryPlanner:
 
         return result.GetTraj(), eef_traj
 
+    def write_to_csv(self, arr, filename):
+        if filename.startswith("means"):
+            arr.insert(0, ["right_shoulderx","right_shouldery","right_shoulderz","right_elbowx","right_elbowy","right_elbowz","right_wristx","right_wristy","right_wristz","right_palmx","right_palmy","right_palmz","neckx","necky","neckz","headx","heady","headz","torsox","torsoy","torsoz","left_shoulderx","left_shouldery","left_shoulderz","left_elbowx","left_elbowy","left_elbowz","left_wristx","left_wristy","left_wristz","left_palmx","left_palmy","left_palmz"])
+        with open(filename, 'w') as csvfile: 
+            # creating a csv writer object 
+            csvwriter = csv.writer(csvfile) 
+                
+            # writing the data rows 
+            csvwriter.writerows(arr)
+    
     def load_traj_file(self, traj_num):
         """
         Loads a trajectory file and stores the trajectory in instance variables for later use.
@@ -75,12 +86,44 @@ class TrajectoryPlanner:
         self.n_pred_timesteps = len(
             self.complete_pred_traj_means_expanded) / (self.n_human_joints * 3)
         
+        full_human_traj = traj_utils.create_human_trajectory_tree(self.full_rightarm_test_traj)
+        # print(full_human_traj)
+        # self.write_to_csv(full_human_traj, "means_try_" + str(traj_num) + ".csv")
+        complete_pred_traj_means, complete_pred_traj_vars = create_human_means_vars(rightarm_pred_traj_means, rightarm_pred_traj_var)
+        self.complete_pred_traj_obs_means_expanded, self.complete_pred_traj_obs_vars_expanded = traj_utils.expand_human_pred(
+            self.full_rightarm_test_traj, self.complete_pred_traj_vars)
+
+        deconstructed_means = []
+        deconstructed_vars = []
+        last_i = 0
+        for i in range(len(self.complete_pred_traj_obs_means_expanded)):
+            if i > 0 and i%33==0:
+                deconstructed_means.append(self.complete_pred_traj_obs_means_expanded[last_i:i])
+                last_i = i
+        last_i = 0
+        for i in range(len(self.complete_pred_traj_vars_expanded)):
+            if i > 0 and i%99==0:
+                deconstructed_vars.append(self.complete_pred_traj_vars_expanded[last_i:i])
+                last_i = i
+        # new_deconstructed_means = []
+        # new_deconstructed_vars = []
+        # for i in range(len(deconstructed_means)):
+        #     if i%10 == 0:
+        #         new_deconstructed_means.append(deconstructed_means[i])
+        #         new_deconstructed_vars.append(deconstructed_vars[i])
+        self.write_to_csv(deconstructed_means, "means_" + str(traj_num) + ".csv")
+        self.write_to_csv(deconstructed_vars, "vars_" + str(traj_num) + ".csv")
+
+        print("Writing Done")
+
         self.full_complete_test_traj = traj_utils.create_human_plot_traj(self.full_rightarm_test_traj)
+        
         self.obs_complete_test_traj = traj_utils.create_human_plot_traj(self.obs_rightarm_test_traj)
         self.num_human_timesteps = len(self.full_complete_test_traj) / (self.n_human_joints * 3)
         self.final_obs_timestep_ind = len(self.obs_complete_test_traj) / (self.n_human_joints * 3)
         head_ind = 5
         torso_ind = 6
+        
         self.head_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + head_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + head_ind + 1) * 3]
         self.torso_pos = self.full_complete_test_traj[(self.final_obs_timestep_ind * self.n_human_joints + torso_ind) * 3 : (self.final_obs_timestep_ind * self.n_human_joints + torso_ind + 1) * 3]
         self.feet_pos = [self.torso_pos[0], self.torso_pos[1], self.torso_pos[2] - 0.5]
@@ -100,7 +143,7 @@ class TrajectoryPlanner:
         self.n_pred_timesteps = len(
             self.complete_pred_traj_means_expanded) / (self.n_human_joints * 3)
 
-    def solve_traj_save_plot_exec(self, init_joint, final_joint, coeffs={}, object_pos=[0, 0.2, 0.83],
+    def solve_traj_save_plot_exec(self, init_joint, final_joint, potential_goal_states, coeffs={}, object_pos=[0, 0.2, 0.83],
                 plot='', execute=False, save=''):
         """
         NOTE: THIS IS ONLY COMPATIBLE WITH TRAJECTORIES THAT HAVE BEEN LOADED IN WITH load_traj_file
@@ -111,9 +154,9 @@ class TrajectoryPlanner:
         execute: whether to execute the calculated trajectory (boolean)
         save: where to save the trajectory as a text file, empty string to do nothing
         """
-        result, eef_traj = self.solve_traj(init_joint, final_joint, coeffs=coeffs, object_pos=object_pos)
+        result, eef_traj = self.solve_traj(init_joint, final_joint, potential_goal_states, coeffs=coeffs, object_pos=object_pos)
         _, default_traj = self.get_default_traj(
-            init_joint, final_joint, self.n_pred_timesteps)
+            init_joint, final_joint, self.n_pred_timesteps,potential_goal_states)
         if execute:
             # TODO: this method for timestep calculation should leverage class-level n_joint variables
             self.scene.execute_full_trajectory(result.GetTraj(), self.full_rightarm_test_traj, len(
@@ -123,12 +166,12 @@ class TrajectoryPlanner:
                 self.full_rightarm_test_traj)
             plots.plot_trajectory(eef_traj, "Distance", default_traj, "Joint Space Linear",
                                   plot, full_complete_test_traj, 11)
-        if save != '':
-            np.savetxt(save, eef_traj, delimiter=',')
+        #if save != '':
+            #np.savetxt(save, eef_traj, delimiter=',')
             
         return result, eef_traj
 
-    def solve_traj(self, init_joint, final_joint, coeffs={}, object_pos=[0, 0.2, 0.83]):
+    def solve_traj(self, init_joint, final_joint, potential_goal_states, coeffs={}, object_pos=[0, 0.2, 0.83]):
         """
         Calculates an optimal trajectory from init_joint to final_joint based on the weights in coeffs.
         Returns joint trajectory and corresponding end effector trajectory
@@ -155,7 +198,7 @@ class TrajectoryPlanner:
         self.scene.robot.SetDOFValues(init_joint, self.scene.manipulator.GetArmIndices())
 
         _, default_traj = self.get_default_traj(
-            init_joint, final_joint, self.n_pred_timesteps)
+            init_joint, final_joint, self.n_pred_timesteps, potential_goal_states)
         self.scene.robot.SetDOFValues(init_joint, self.scene.manipulator.GetArmIndices())
 
         request = req_util.create_empty_request(

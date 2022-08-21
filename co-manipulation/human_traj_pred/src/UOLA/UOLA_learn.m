@@ -9,7 +9,7 @@ function[] = UOLA_learn(model_dir, traj_dir)
 load(model_dir)
 
 %% Load Traj
-traj = Read_Traj(traj_dir);
+traj = traj_dir;
 
 %% Get a new trajectory
 num_total_traj = num_total_traj + 1;
