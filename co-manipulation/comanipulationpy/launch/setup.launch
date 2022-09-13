@@ -1,0 +1,8 @@
+<launch>
+
+    <!-- <node pkg="learning_tf2" type="tf2_broadcaster.py" name="tf2_broadcaster" args="world frontdepth_camera_link -0.944 0.254 0.989 -2.157 -0.045 -2.472" /> -->
+    <node pkg="learning_tf2" type="tf2_broadcaster.py" name="tf2_broadcaster" args="world frontdepth_camera_link -0.950 0.300 0.989 -2.157 -0.045 -2.472" />
+
+    <include file="$(find kinova_bringup)/launch/arm.launch" />
+    <include file="$(find comanip_config)/launch/activity_camera.launch" />
+</launch>

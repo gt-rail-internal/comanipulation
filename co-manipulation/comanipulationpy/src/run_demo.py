@@ -6,6 +6,7 @@
 from codecs import raw_unicode_escape_decode
 from pickle import TRUE
 import sys
+import re
 
 sys.path.insert(1, '/home/hritiksapra/Documents/comoto.jl/src')
 from ros_dispatch import parse_traj_file, follow_trajectory, start_ros_node, end_ros_node 
@@ -17,7 +18,7 @@ import tf
 import numpy as np
 from visualization_msgs.msg import MarkerArray, Marker
 from message_filters import Subscriber
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 from learning_tf2.msg import Num, MAstamp
 import json
 from pygame import mixer
@@ -114,11 +115,9 @@ def tf_cor(stop, case):
             break
 
 def mycallback(data):
-    #print("work")
-    dataA = data.markers
     msged = MAstamp()
 
-    for idx, marker in enumerate(dataA):
+    for marker in data.markers:
         msged.header.stamp = rospy.get_rostime()
         msged.markers.markers.append(marker)
     
@@ -146,6 +145,11 @@ def save2csv(tag, skeleton_trajectory, dump_folder):
 client = None
 
 def run_experiment(user_id, path, pub_start, pub_stop, methods):
+
+    # Zhi -- additional safe guards for data
+    result_pub = rospy.Publisher("/study/result", String, queue_size=5)
+
+
     global client
     msg1 = Num()            #For start flag
     msg2 = Num()            #For stop flag
@@ -259,7 +263,8 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
     Fully Randomized Trajectories
     """
 
-    for traj_file_name in file_array:
+    for idx, traj_file_name in enumerate(file_array):
+        break
         # print(traj_file_name)
         
         # random.shuffle(methods)
@@ -339,7 +344,7 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
 
         traj, dt, t_0 = parse_traj_file(traj_file_name)
 
-        print(method)
+        print("Running {} | {} out of {}".format(method, idx+1, len(file_array)))
 
         raw_input("Display Start Instructions?")
 
@@ -353,6 +358,7 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
         clear_label.configure(bg = "#8f918e", fg = "black")
 
         raw_input("Go to start?")
+        print("[SAY] Robot is moving to starting position.")
 
         my_string_var.set("         The arm is now moving to the start position")
         # second_string_var.set("                 This is Robot {}".format(robot_type))
@@ -361,6 +367,7 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
         follow_trajectory([traj[0]], 4.0,  4.0)
 
         raw_input("Display move instructions?")
+        print("[ASK] The calculator is cleared and on?")
 
         if type_name.startswith("WHITE"):
             frame.configure(bg='white')
@@ -466,6 +473,7 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
         while len(answer) == 0:
             answer = raw_input("Answer: ")
             answer.strip()
+            answer = re.sub("[^0-9]","", answer)
 
         print(answer)
 
@@ -474,7 +482,9 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
         else:
             cond = bool(False)
 
-        log_data_prime.append("{},{},{},{},{},{},{},{}".format(part,method,traj_file,calculator_problem,run_time,answer,solution,cond))
+        log_result_data = "{},{},{},{},{},{},{},{}".format(part,method,traj_file,calculator_problem,run_time,answer,solution,cond)
+        log_data_prime.append(log_result_data)
+        result_pub.publish(data=log_result_data)
         log_data = []
         # print(log_data_prime)
 
@@ -507,7 +517,7 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
     calculate_label.configure(bg = "#8f918e", fg = "black")
     clear_label.configure(bg = "#8f918e", fg = "black")
 
-    raw_input("----Stop for survey!----")
+    raw_input("\n----Stop for survey!----\n")
 
     print("First part done")
     #--------------------------------------------------------------------------------------------------------
@@ -528,6 +538,9 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
         random.shuffle(types)
 
         for i in range(len(types)):
+
+            print("Running {} out of {} in {}".format(i+1, len(types), method))
+
             traj_file_name = map_type_to_traj[types[i]]
 
             if method == "NOMINAL":
@@ -557,10 +570,12 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
             third_string_var.set("")
 
             raw_input("Go to start?")
+            print("[SAY] Robot is moving to starting position.")
 
             follow_trajectory([traj[0]], 4.0,  4.0)
 
             raw_input("Display move instructions?")
+            print("[ASK] The calculator is cleared and on?")
 
             if type_name.startswith("WHITE"):
                 frame.configure(bg='white')
@@ -629,11 +644,11 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
             # t2.start()
             #---------------------------------------------------------------------
 
-            follow_trajectory(traj, dt, 1.0)
+            end = follow_trajectory(traj, dt, 1.0)
 
             # raw_input("Calculated Problem?")
 
-            end = time.time()
+            time.time()
             run_time = str(end - begin)
             print(run_time)
 
@@ -672,13 +687,16 @@ def run_experiment(user_id, path, pub_start, pub_stop, methods):
             while len(answer) == 0:
                 answer = raw_input("Answer: ")
                 answer.strip()
+                answer = re.sub("[^0-9]","", answer)
 
             if solution == int(answer):
                 cond = bool(True)
             else:
                 cond = bool(False)
 
-            log_data_prime.append("{},{},{},{},{},{},{},{}".format(part,method,traj_file,calculator_problem,run_time,answer,solution,cond))
+            log_result_data = "{},{},{},{},{},{},{},{}".format(part,method,traj_file,calculator_problem,run_time,answer,solution,cond)
+            log_data_prime.append(log_result_data)
+            result_pub.publish(data=log_result_data)
             log_data = []
             # print(log_data_prime)
 
@@ -735,6 +753,10 @@ def main(user_id, pub_start, pub_stop, methods):
     run_experiment(user_id, logdir_path, pub_start, pub_stop, methods)
 
 if __name__ == '__main__':
+
+    # wait 1 seconds for eveything to start up
+    time.sleep(1)
+
     rospy.init_node('flag_topic', anonymous=False)
     pub_start = rospy.Publisher('/flag_topic/start', Num, queue_size=10)
     pub_stop = rospy.Publisher('/flag_topic/stop', Num, queue_size=10)
@@ -745,11 +767,13 @@ if __name__ == '__main__':
     # print(sys.argv[3])
     # print(sys.argv[4])
 
-    methods = [str(sys.argv[2]), str(sys.argv[3]), str(sys.argv[4])]
+    valid_names = ["COMOTO", "DIST", "NOMINAL"]
+    methods = [str(sys.argv[2]).strip(), str(sys.argv[3]).strip(), str(sys.argv[4]).strip()]
     for method in methods:
-        if method != "COMOTO" or method != "DIST" or method != "NOMINAL":
-            print("---------------------------Method Names are wrong!!---------------------------")
-            # sys.exit()
+        if method not in valid_names:
+            print("Incorrect Method Name {}".format(method))
+            time.sleep(10)
+            sys.exit()
 
     # print(methods)
 

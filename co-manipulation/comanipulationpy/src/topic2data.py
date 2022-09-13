@@ -64,6 +64,7 @@ class Rostopic2Data:
     cnt = 0
     cnt1 = 0
     runstate = 1
+    _first = False
     skeleton_joints = []
     skeleton_orientation = []
 
@@ -92,18 +93,24 @@ class Rostopic2Data:
         self.flag_subscriber_stop = Subscriber(flag_topic_stop, Num)
         self.tf2_subscriber = Subscriber(tf2_topic, TwistStamped)
 
-        sync = ApproximateTimeSynchronizer([self.skeleton_subscriber, self.image_subscriber, self.robot_subscriber, self.flag_subscriber_start, self.flag_subscriber_stop, self.tf2_subscriber], queue_size=5, slop=0.1, allow_headerless=False) # slop=0.0667
-        # sync = ApproximateTimeSynchronizer([self.skeleton_subscriber, self.image_subscriber, self.robot_subscriber, self.flag_subscriber_start, self.flag_subscriber_stop], queue_size=10, slop=10000000, allow_headerless=True)
-        sync.registerCallback(self.callback)
-        print('Collecting data')
         self.count_it = 1
         self.count = 1
         self.stop_flag = False
+
+        sync = ApproximateTimeSynchronizer([self.skeleton_subscriber, self.image_subscriber, self.robot_subscriber, self.flag_subscriber_start, self.flag_subscriber_stop, self.tf2_subscriber], queue_size=5, slop=0.1, allow_headerless=False) # slop=0.0667
+        # sync = ApproximateTimeSynchronizer([self.skeleton_subscriber, self.image_subscriber, self.robot_subscriber, self.flag_subscriber_start, self.flag_subscriber_stop], queue_size=10, slop=10000000, allow_headerless=True)
+        sync.registerCallback(self.callback)
+        print('start collecting data')
         rospy.spin()
 
     # Waits for ApproximateTimeSynchronizer to pass 
     def callback(self, skeleton_msg, rgb_msg, robot_msg, flag_msg_start, flag_msg_stop, tf2_msg):
         
+        if not self._first:
+            print("Callback started!")
+            self._first = True
+
+
         markers = skeleton_msg.markers.markers
         tf2 = tf2_msg
 
@@ -224,8 +231,13 @@ class Rostopic2Data:
 
             Rostopic2Data.runstate = 0
 
+import datetime
 
 def main(user_id):
+
+    # add user id with more information to prevent overwrites
+    user_id = "{}_{}".format(user_id, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))
+
     rospy.init_node("topic2data", anonymous=True)
     rospack = rospkg.RosPack()
 
